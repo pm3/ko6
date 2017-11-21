@@ -92,9 +92,8 @@ function unquote (str) {
 }
 
 function parseJsExression(s){
-      if(startsWith(s, '{') && endsWith(s, '}')){
+      if(s && startsWith(s, '{') && endsWith(s, '}')){
         s = s.slice(1, s.length-1);
-        console.log(s);
         return new Function('m', 'ctx', 'return '+s);
       }
       return s;

@@ -215,26 +215,10 @@ try { _global = window; } catch (e) { _global = global; }
 var options = {
   deferUpdates: false,
 
-  useOnlyNativeEvents: false,
-
   protoProperty: '__ko_proto__',
-
-    // Modify the default attribute from `data-bind`.
-  defaultBindingAttribute: 'data-bind',
-
-    // Enable/disable <!-- ko binding: ... -> style bindings
-  allowVirtualElements: true,
 
     // Global variables that can be accessed from bindings.
   bindingGlobals: _global,
-
-    // An instance of the binding provider.
-  bindingProviderInstance: null,
-
-    // jQuery will be automatically set to _global.jQuery in applyBindings
-    // if it is (strictly equal to) undefined.  Set it to false or null to
-    // disable automatically setting jQuery.
-  jQuery: _global && _global.jQuery,
 
   Promise: _global && _global.Promise,
 
@@ -306,27 +290,6 @@ function debounce(callback, timeout) {
         timeoutInstance = safeSetTimeout(callback, timeout);
     };
 }
-
-//
-// Detection and Workarounds for Internet Explorer
-//
-// Detect IE versions for bug workarounds (uses IE conditionals, not UA string, for robustness)
-// Note that, since IE 10 does not support conditional comments, the following logic only detects IE < 10.
-// Currently this is by design, since IE 10+ behaves correctly when treated as a standard browser.
-// If there is a future need to detect specific versions of IE10+, we will amend this.
-var ieVersion = options.document && (function () {
-  var version = 3, div = options.document.createElement('div'), iElems = div.getElementsByTagName('i');
-
-    // Keep constructing conditional HTML blocks until we hit one that resolves to an empty fragment
-  while (
-        div.innerHTML = '<!--[if gt IE ' + (++version) + ']><i></i><![endif]-->',
-        iElems[0]
-    ) {}
-  return version > 4 ? version : undefined
-}());
-
-var isIe6 = ieVersion === 6;
-var isIe7 = ieVersion === 7;
 
 //
 // Object functions
@@ -462,52 +425,6 @@ function createSymbolOrString(identifier) {
     return useSymbols ? Symbol(identifier) : identifier;
 }
 
-//
-// DOM - CSS
-//
-
-// For details on the pattern for changing node classes
-// see: https://github.com/knockout/knockout/issues/1597
-var cssClassNameRegex = /\S+/g;
-
-
-function toggleDomNodeCssClass(node, classNames, shouldHaveClass) {
-    var addOrRemoveFn;
-    if (!classNames) { return; }
-    if (typeof node.classList === 'object') {
-        addOrRemoveFn = node.classList[shouldHaveClass ? 'add' : 'remove'];
-        arrayForEach(classNames.match(cssClassNameRegex), function(className) {
-            addOrRemoveFn.call(node.classList, className);
-        });
-    } else if (typeof node.className['baseVal'] === 'string') {
-        // SVG tag .classNames is an SVGAnimatedString instance
-        toggleObjectClassPropertyString(node.className, 'baseVal', classNames, shouldHaveClass);
-    } else {
-        // node.className ought to be a string.
-        toggleObjectClassPropertyString(node, 'className', classNames, shouldHaveClass);
-    }
-}
-
-
-function toggleObjectClassPropertyString(obj, prop, classNames, shouldHaveClass) {
-    // obj/prop is either a node/'className' or a SVGAnimatedString/'baseVal'.
-    var currentClassNames = obj[prop].match(cssClassNameRegex) || [];
-    arrayForEach(classNames.match(cssClassNameRegex), function(className) {
-        addOrRemoveItem(currentClassNames, className, shouldHaveClass);
-    });
-    obj[prop] = currentClassNames.join(" ");
-}
-
-//
-// jQuery
-//
-// TODO: deprecate in favour of options.$
-
-var jQueryInstance = options.global && options.global.jQuery;
-
-function jQuerySetInstance(jquery) {
-    options.jQuery = jQueryInstance = jquery;
-}
 
 //
 //  Tasks Micro-scheduler
@@ -619,29 +536,5 @@ var tasks = Object.freeze({
 	runEarly: processTasks
 });
 
-/*
-  tko.util
-  ===
+export { tasks, options, arrayForEach, arrayIndexOf, arrayFirst, arrayRemoveItem, arrayGetDistinctValues, arrayMap, arrayFilter, arrayPushAll, addOrRemoveItem, makeArray, range, findMovesInArrayComparison, compareArrays, throttle, debounce, catchFunctionErrors, deferError, safeSetTimeout, extend, objectForEach, objectMap, getObjectOwnProperty, clonePlainObjectDeep, canSetPrototype, setPrototypeOf, setPrototypeOfOrExtend, hasPrototype, stringTrim, stringStartsWith, parseJson, stringifyJson, useSymbols, createSymbolOrString };
 
-
-*/
-// DOM;
-/*
-export * from './dom/event.js';
-export * from './dom/info.js';
-export * from './dom/manipulation.js';
-export * from './dom/fixes.js';
-export * from './dom/html.js';
-export * from './dom/disposal.js';
-
-// Sub-Modules;
-import * as memoization from './memoization';
-import * as tasks from './tasks.js';
-import * as virtualElements from './dom/virtualElements.js';
-import * as domData from './dom/data.js';
-
-export {tasks, virtualElements, domData, memoization};
-*/
-
-export { tasks, jQuerySetInstance, options, arrayForEach, arrayIndexOf, arrayFirst, arrayRemoveItem, arrayGetDistinctValues, arrayMap, arrayFilter, arrayPushAll, addOrRemoveItem, makeArray, range, findMovesInArrayComparison, compareArrays, throttle, debounce, catchFunctionErrors, deferError, safeSetTimeout, ieVersion, isIe6, isIe7, extend, objectForEach, objectMap, getObjectOwnProperty, clonePlainObjectDeep, canSetPrototype, setPrototypeOf, setPrototypeOfOrExtend, hasPrototype, stringTrim, stringStartsWith, parseJson, stringifyJson, useSymbols, createSymbolOrString, toggleDomNodeCssClass };
-//# sourceMappingURL=tko.utils.js.map

@@ -141,8 +141,6 @@ var ItemViewModel = function (data, parent) {
 	};
 };
 
-/** @jsx kox */
-/** @jsx-arrow(m,ctx) */
 var x = `
     <div class="container">
         <div class="jumbotron">
@@ -190,9 +188,9 @@ var x = `
 					<tr>
 						<td class="col-md-1">{m.id}</td>
 						<td class="col-md-4">
-							<a xclick={m.select}>{m.label}</a>
+							<a click={m.select}>{m.label}</a>
 						</td>
-						<td class="col-md-1"><a xclick={m.del}><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+						<td class="col-md-1"><a click={m.del}><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
 						<td class="col-md-6"></td>
 					</tr>
 				</Foreach>

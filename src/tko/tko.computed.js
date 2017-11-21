@@ -34,9 +34,7 @@ function computed (evaluatorFunctionOrOptions, evaluatorFunctionTarget, options$
     isSleeping: false,
     readFunction: options$$1.read,
     evaluatorFunctionTarget: evaluatorFunctionTarget || options$$1.owner,
-    disposeWhenNodeIsRemoved: options$$1.disposeWhenNodeIsRemoved || options$$1.disposeWhenNodeIsRemoved || null,
     disposeWhen: options$$1.disposeWhen || options$$1.disposeWhen,
-    domNodeDisposalCallback: null,
     dependencyTracking: {},
     dependenciesCount: 0,
     evaluationTimeoutInstance: null
@@ -91,22 +89,7 @@ function computed (evaluatorFunctionOrOptions, evaluatorFunctionTarget, options$
     computedObservable._options = options$$1;
   }
 
-  if (state.disposeWhenNodeIsRemoved) {
-        // Since this computed is associated with a DOM node, and we don't want to dispose the computed
-        // until the DOM node is *removed* from the document (as opposed to never having been in the document),
-        // we'll prevent disposal until "disposeWhen" first returns false.
-    state.suppressDisposalUntilDisposeWhenReturnsFalse = true;
-
-        // disposeWhenNodeIsRemoved: true can be used to opt into the "only dispose after first false result"
-        // behaviour even if there's no specific node to watch. In that case, clear the option so we don't try
-        // to watch for a non-node's disposal. This technique is intended for KO's internal use only and shouldn't
-        // be documented or used by application code, as it's likely to change in a future version of KO.
-    if (!state.disposeWhenNodeIsRemoved.nodeType) {
-      state.disposeWhenNodeIsRemoved = null;
-    }
-  }
-
-    // Evaluate, unless sleeping or deferEvaluation is true
+  // Evaluate, unless sleeping or deferEvaluation is true
   if (!state.isSleeping && !options$$1.deferEvaluation) {
     computedObservable.evaluateImmediate();
   }
@@ -180,19 +163,7 @@ computed.fn = {
     }
   },
   subscribeToDependency: function (target) {
-    if (target._deferUpdates && !this[computedState].disposeWhenNodeIsRemoved) {
-      var dirtySub = target.subscribe(this.markDirty, this, 'dirty'),
-        changeSub = target.subscribe(this.respondToChange, this);
-      return {
-        _target: target,
-        dispose: function () {
-          dirtySub.dispose();
-          changeSub.dispose();
-        }
-      }
-    } else {
-      return target.subscribe(this.evaluatePossiblyAsync, this)
-    }
+    return target.subscribe(this.evaluatePossiblyAsync, this)
   },
   evaluatePossiblyAsync: function () {
     var computedObservable = this,
@@ -342,7 +313,6 @@ computed.fn = {
     state.isDisposed = true;
     state.isStale = false;
     state.isSleeping = false;
-    state.disposeWhenNodeIsRemoved = null;
     state.readFunction = null;
     if (options.debug) {
       this._options = null;
@@ -427,7 +397,7 @@ if (canSetPrototype) {
 }
 
 // Set the proto chain values for ko.hasPrototype
-var protoProp = observable.protoProperty; // == "__ko_proto__"
+var protoProp = observable.protoProperty;
 computed[protoProp] = observable;
 computed.fn[protoProp] = computed;
 
@@ -482,4 +452,3 @@ extenders.throttle = throttleExtender;
 //
 
 export { computed, isComputed, isPureComputed, pureComputed, throttleExtender };
-//# sourceMappingURL=tko.computed.js.map

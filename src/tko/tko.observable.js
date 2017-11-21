@@ -852,4 +852,3 @@ objectLookup.prototype = {
 //
 
 export { dependencyDetection, observable, isObservable, unwrap, peek, isWriteableObservable, isWriteableObservable as isWritableObservable, isSubscribable, subscribable, observableArray, trackArrayChanges, arrayChangeEventName, toJS, toJSON, deferUpdates, valuesArePrimitiveAndEqual, applyExtenders, extenders };
-//# sourceMappingURL=tko.observable.js.map

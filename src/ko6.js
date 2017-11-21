@@ -1,5 +1,5 @@
 import { observable, observableArray } from './tko/tko.observable.js';
-import { computed }  from './tko/tko.computed.js';
+import { computed, isPureComputed, pureComputed }  from './tko/tko.computed.js';
 import { renderCtx, createCtx }  from './renderCtx.js';
 import { parserko6 }  from './parserko6.js';
 
@@ -24,15 +24,14 @@ function ko6(parent, tpl, model){
 	parent.innerHtml = '';
 	var tpl2 = parserko6(tpl);
 	renderCtx(parent, tpl2, ctx, 0);
-	window.rootCtx = ctx;
 	return ctx;
 };
 
 export {
 	ko6,
 	parserko6,
-	observable,
-	observableArray,
+	observable,	observableArray,
 	computed,
+	isPureComputed, pureComputed
 	renderCtx
 };
