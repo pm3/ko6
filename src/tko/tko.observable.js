@@ -96,7 +96,6 @@ function subscription (target, callback, disposeCallback) {
   this.callback = callback;
   this.disposeCallback = disposeCallback;
   this.isDisposed = false;
-  window.count++;
 }
 
 subscription.prototype.dispose = function () {

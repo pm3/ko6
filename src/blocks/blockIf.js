@@ -1,45 +1,28 @@
-import { arrayForEach }  from '../tko/tko.utils.js';
 import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
-import { computed }  from '../tko/tko.computed.js';
-import { renderCtx, createStamp, duplicateCtx }  from '../renderCtx.js';
+import { renderCtx }  from '../renderCtx.js';
 
-export default function blockIf(parent, tpl, ctx, level){
+export default function blockIf(stamp, tpl, ctx0, level){
 
 	if(tpl.children && tpl.children.length>0 && tpl.attrs && tpl.attrs['value'] && tpl.attrs['value'].call){
 		
 		var value = tpl.attrs['value'];
-		var stamp =	createStamp(parent, 'if');
-		if(level==0) ctx.rootNodes.push(stamp[1]);
+		var val2 = ctx0.expr(value);
+		val2 = unwrap(val2) ? true : false;
 
-		var ctx0 = duplicateCtx(ctx);
-		ctx.subscribers.push(ctx0);
+		//check boolean expression change true/false
+		if(val2===ctx0.lastVal) return;
+		ctx0.lastVal = val2;
 
-		var lastVal = false;
+		//remove old children tpl
+		dependencyDetection.ignore(function(){
+			ctx0.dispose();
+		});
 
-		var kv = computed(function(){
-			var val2 = value(ctx.model, ctx);
-			val2 = unwrap(val2) ? true : false;
-			if(val2==lastVal) return;
-
-			lastVal = val2;
-			//remove children tpl
+		if(val2){
+			//render new children tpl
 			dependencyDetection.ignore(function(){
-				ctx0.dispose();
+				renderCtx(stamp, tpl.children, ctx0, 0);
 			});
-
-			if(val2){
-				//render children tpl
-				dependencyDetection.ignore(function(){
-					renderCtx(stamp, tpl.children, ctx0, 0);
-				});
-			} else {
-			}
-		}, this);
-		kv();
-		if(kv.getDependenciesCount()>0){
-			ctx.subscribers.push(kv);
-		} else {
-			kv.dispose();
 		}
 	}
 

@@ -6,36 +6,26 @@ import blockComponent  from './blocks/blockComponent.js';
 
 function renderCtx(parentEl, tpl, ctx, level){
 	if(Array.isArray(tpl)){
+		//is array
 		for(var i=0; i<tpl.length; i++){
 			renderCtx(parentEl, tpl[i], ctx, level);
 		}
-	} else if(tpl.block){
-		var blockFn = renderCtx.blocks[tpl.block];
-		if(blockFn && blockFn.call){
-			blockFn(parentEl, tpl, ctx, level, renderCtx);
-		} else {
-			tpl.attrs._name = () => tpl.block;
-			blockComponent(parentEl, tpl, ctx, level, renderCtx);
-		}
 	} else if(tpl.tag){
-		var el = document.createElement(tpl.tag);
-		if(level==0) ctx.rootNodes.push(el);
-		for (var key in tpl.attrs) {
-			var val = tpl.attrs[key];
-			if(typeof val == "function"){
-				attrExpr(el, key, val, ctx);
-			} else {
-				el.setAttribute(key, val);
-			}
+		if(tpl.tag.toLowerCase()!=tpl.tag || tpl.tag.indexOf('-')>0){
+	   		//is block
+	   		renderBlock(parentEl, tpl, ctx, level);
+		} else {
+			//is html element
+			renderElement(parentEl, tpl, ctx, level)
 		}
-		insertNode(parentEl, el);
-		if(tpl.children) arrayForEach(tpl.children, function(x){ renderCtx(el, x, ctx, level+1); });
 	} else if(tpl && typeof tpl == "function"){
+		//is text expresssion
 		var n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
 		textExpr(n, tpl, ctx, level);
 	} else if(tpl !== undefined || tpl !== null){
+		//is text
 		var n = document.createTextNode(""+tpl);
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
@@ -65,15 +55,14 @@ function attrExpr(el, key, val, ctx){
 	var binding = renderCtx.bindingHandlers[key];
 	if(binding){
 		if(binding.init){
-			var val2 = val(ctx.model, ctx);
+			var val2 = ctx.expr(val);
 			binding.init(el, val2, ctx);
 		}
 		if(binding.update){
 			var kv = computed(function(){
-				var val2 = val(ctx.model, ctx);
+				var val2 = ctx.expr(val);
 				binding.update(el, val2, ctx);
 			},this);
-			kv.extend({ notify: 'always' });
 			kv();
 			ctx.subscribers.push(kv);
 		}
@@ -86,11 +75,10 @@ function attrExpr(el, key, val, ctx){
 		}
 	} else {
 		var kv = computed(function(){
-			var val2 = val(ctx.model, ctx);
+			var val2 = ctx.expr(val);
 			val2 = unwrap(val2);
 			el.setAttribute(key, val2);
 		},this);
-		kv.extend({ notify: 'always' });
 		kv();
 		if(kv.getDependenciesCount()>0){
 			ctx.subscribers.push(kv);
@@ -102,12 +90,49 @@ function attrExpr(el, key, val, ctx){
 
 function textExpr(n, val, ctx, level){
 	var kv = computed(function(){
-		var val2 = val(ctx.model, ctx);
+		var val2 = ctx.expr(val);
 		val2 = unwrap(val2);
 		n.nodeValue = ""+val2;
 		return val2;
 	}, this);
-	kv.extend({ notify: 'always' });
+	kv();
+	if(kv.getDependenciesCount()>0){
+		ctx.subscribers.push(kv);
+	} else {
+		kv.dispose();
+	}
+};
+
+function renderElement(parentEl, tpl, ctx, level){
+	var el = document.createElement(tpl.tag);
+	if(level==0) ctx.rootNodes.push(el);
+	for (var key in tpl.attrs) {
+		var val = tpl.attrs[key];
+		if(typeof val == "function"){
+			attrExpr(el, key, val, ctx);
+		} else {
+			el.setAttribute(key, val);
+		}
+	}
+	insertNode(parentEl, el);
+	if(tpl.children) arrayForEach(tpl.children, function(x){ renderCtx(el, x, ctx, level+1); });
+};
+
+function renderBlock(parentEl, tpl, ctx, level){
+	var blockFn = renderCtx.blocks[tpl.tag];
+	if(!(blockFn && blockFn.call)){
+		blockFn = blockComponent;
+		tpl.attrs._name = () => tpl.tag;
+	}
+
+	var stamp =	createStamp(parentEl, tpl.tag);
+	if(level==0) ctx.rootNodes.push(stamp[1]);
+
+	var ctx0 = ctx.createChild();
+
+	var kv = computed(function(){
+		blockFn(stamp, tpl, ctx0, level);
+	}, this);
 	kv();
 	if(kv.getDependenciesCount()>0){
 		ctx.subscribers.push(kv);
@@ -122,57 +147,31 @@ renderCtx.blocks = {
 renderCtx.bindingHandlers = {
 };
 
-function createCtx(model, parentCtx, component){
-	var ctx = {};
-	ctx.model = model;
-	ctx.componet = component ? component : parentCtx ? parentCtx.conponent : null;
-	ctx.root = parentCtx ? parentCtx.root : model;
-	ctx.parent = function(index){
-		if(index<0){
-			return ctx.root;
-		}
-		if(index==0){
-			return ctx.model;	
-		}
-		var parent1 = ctx;
-		while(index-->0){
-			if(!parent1.parentCtx) return parent1.model;
-			parent1 = parent1.parentCtx;
-		}
-		return parent1.model;
-	};
-	ctx.parentCtx = parentCtx;
-	ctx.rootNodes = [];
-	ctx.subscribers = [];
-	ctx.dispose = function(removeNodes) {
-		arrayForEach(ctx.subscribers, function(e) { if(e.dispose) e.dispose(); } );
-		ctx.subscribers = [];
-		if(!(removeNodes===false)) arrayForEach(ctx.rootNodes, function(n) { if(n.parentNode) n.parentNode.removeChild(n); });
-		ctx.rootNodes = [];
-	};
-
-	return ctx;
+function Ctx(model, parent, root, component){
+	this.model = model;
+	this.parent = parent;
+	this.root = root;
+	this.component = component;
+	this.rootNodes = [];
+	this.subscribers = [];
 }
-
-function duplicateCtx(ctx){
-	
-	var ctx0 = {};
-	for (var attr in ctx) if (ctx.hasOwnProperty(attr)) ctx0[attr] = ctx[attr];
-	ctx0.subscribers = [];
-	ctx0.rootNodes = [];
-	ctx0.dispose = function() {
-		arrayForEach(ctx0.subscribers, function(e) { if(e.dispose) e.dispose(); } );
-		ctx0.subscribers = [];
-		arrayForEach(ctx0.rootNodes, function(n) { if(n.parentNode) n.parentNode.removeChild(n); });
-		ctx0.rootNodes = [];
-	};
+Ctx.prototype.dispose = function(){
+	this.subscribers.forEach(function(e) { if(e.dispose) e.dispose() } );
+	this.subscribers = [];
+	this.rootNodes.forEach(function(n) { if(n.parentNode) n.parentNode.removeChild(n) } );
+	this.rootNodes = [];
+}
+Ctx.prototype.createChild = function(model){
+	var ctx0 = new Ctx(model || this.model, this.parent, this.root, this.component);
+	this.subscribers.push(ctx0);
 	return ctx0;
+}
+Ctx.prototype.expr = function(f){
+	return f(this.model, this);
 }
 
 export {
-	renderCtx,
-	createCtx,
-	duplicateCtx,
-	insertNode,
-	createStamp
+	renderCtx, renderElement, renderBlock,
+	Ctx,
+	insertNode, createStamp
 };

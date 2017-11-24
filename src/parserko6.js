@@ -41,12 +41,7 @@ function format (nodes) {
       const attrs = formatAttributes(node.attributes)
       const children = format(node.children)
 
-      const obj = {}
-      if(tag.toLowerCase()!=tag || tag.indexOf('-')>0){
-        obj.block = tag;
-      } else {
-        obj.tag = tag;
-      }
+      const obj = {tag}
       if(attrs && Object.keys(attrs).length>0){
         obj.attrs = attrs;
       }
