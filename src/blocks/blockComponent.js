@@ -1,10 +1,9 @@
-import { arrayForEach }  from '../tko/tko.utils.js';
 import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
 import { computed }  from '../tko/tko.computed.js';
 import { renderCtx }  from '../renderCtx.js';
-import { parserko6 }  from '../parserko6.js';
+import { templateParser }  from '../templateParser.js';
 
-export default function blockComponent(stamp, tpl, ctx0, level){
+export function blockComponent(stamp, tpl, ctx0, level){
 
 	if(tpl.children && tpl.children.length>0 && tpl.attrs && tpl.attrs['_name']){
 		
@@ -29,7 +28,7 @@ export default function blockComponent(stamp, tpl, ctx0, level){
 				renderCtx(stamp, view, ctx0, 0);
 			};
 
-			renderCtx.loadComponent(val2, callback);
+			renderCtx.registerComponent(val2, null, callback);
 
 		});
 
@@ -38,80 +37,107 @@ export default function blockComponent(stamp, tpl, ctx0, level){
 
 }
 
-renderCtx.componentMap = {};
-renderCtx.componentConfigurators = [];
+export var componentLoaders = [];
 
-renderCtx.registerComponent = function(name, def){
-	def.name = name;
-	renderCtx.componentMap[name] = def;
-};
+export function registerComponent(name, def0, callback){
 
-renderCtx.loadComponent = function(name, callback){
-
-	var def = renderCtx.componentMap[name];
-	console.log(def);
-	if(!def){
-		def = { name: name };
-		renderCtx.componentMap[name] = def;
+	var def = registerComponent.componentMap[name];
+	console.log('registerComponent ' + name, def0, def);
+	
+	//undefined component, undefined definition, create empty definition
+	if(!def && !def0){
+		def0 = { name:name, empty:true };
 	}
 
+	//merge definition
+	if(def && def0){
+		for (var name in def0) {
+  			if (def0.hasOwnProperty(name)) def[name] = def0[name];
+  		}
+		if(def.asynchModel && def.model) delete def.asynchModel;
+		if(def.asynchTemplate && def.template) delete def.asynchTemplate;
+	}
+
+	//create new definition
+	if(!def && def0){
+		def = def0;
+		def.name = name;
+		registerComponent.componentMap[name] = def;
+	}
+
+	//error, no continue
 	if(def.error){
-		console.log('loadComponent ' + name + ' error ' + def.error);
+		console.log('registerComponent ' + name + ' exists error ' + def.error);
 		return;
 	}
 
-	if(!def.configured){
-		def.configured = true;
-		renderCtx.componentConfigurators.forEach( (f) => f(def) );
+	//definition was changed - run all loaders
+	if(def0){
+		componentLoaders.forEach( (f) => f(def) );
 	}
 
-	if(def.loadModel || def.loadTemplate) {
-		console.log('loadComponent ' + name+' loading ');
-		if(!def.waitingCallbacks) def.waitingCallbacks = [];
-		if(callback) def.waitingCallbacks.push(callback);
+	//check if is running loading model or template
+	if(def.asynchModel || def.asynchTemplate) {
+		if(callback){
+			console.log('registerComponent ' + name+' loading', def.asynchModel, def.asynchTemplate);
+			if(!def.waitingCallbacks) def.waitingCallbacks = [];
+			def.waitingCallbacks.push(callback);
+		}
 		return;
 	}
 
 	if(def.template){
+		
+		//compile template
 		if(typeof def.template == 'string'){
-			def.template = parserko6(def.template);
+			def.template = templateParser(def.template);
 		}
-
-		if(def.waitingCallbacks){
+		
+		//render waiting callbacks
+		if(def.waitingCallbacks) {
 			def.waitingCallbacks.forEach( (c) => c(def.model, def.template) );
 			delete def.waitingCallbacks;
-		}
+		} 
+
+		//render callback
 		if(callback) callback(def.model, def.template);
 		return;
 	}
 
+	//no loading, no template, create error
 	def.error = 'undefined template';
-	console.log('loadComponent ' + name + ' error ' + def.error);
-	delete def.waitingCallbacks;
-};
+	console.log('registerComponent ' + name + ' error ' + def.error);
+}
+registerComponent.componentMap = {};
 
-function templateAjaxLoad(def){
-	if(!def.loadTemplate && def.templateUrl){
-		def.loadTemplate = 'templateAjaxLoad ' + def.templateUrl;
-		console.log('loadComponent ' + name + ' ' + def.loadTemplate);
-		ajaxGet(def.templateUrl, function(status,data){
-			delete def.loadTemplate;
-			if(status==200){
-				def.template = data;
-			} else {
-				def.error = 'templateAjaxLoad state=' + state;
-			}
-			renderCtx.loadComponent(def.name);
-		});
+function templateAjaxLoader(def){
+	//no template, no loading, and defined templateUrl
+	if(!def.template && !def.asynchTemplate && def.templateUrl){
+
+		//make note but template is loading with templateAjaxLoader
+		def.asynchTemplate = 'templateAjaxLoader ' + def.templateUrl;
+
+		//send ajax GET request
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', def.templateUrl);
+		xhr.onload = function(){
+			var def2 = (xhr.status==200) ? { template : xhr.responseText } : { error : 'templateAjaxLoader state=' + xhr.state };
+			registerComponent(def.name, def2);
+		};
+		xhr.send();
 	}
 }
-renderCtx.componentConfigurators.push(templateAjaxLoad);
+componentLoaders.push(templateAjaxLoader);
 
-function ajaxGet(url, callback){
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', url);
-	xhr.onload = function() {
-        callback(xhr.status, xhr.responseText);
-	};
-	xhr.send();
+function es6loader(def){
+	if (!def.model && !def.asynchModel && def.es6module) {
+
+		def.asynchModel = "es6loader "+def.es6module;
+		var script = document.createElement('script');
+		script.src = def.es6module;
+		script.type = "module";
+		document.head.appendChild(script);
+	}
 }
+componentLoaders.push(es6loader);
+

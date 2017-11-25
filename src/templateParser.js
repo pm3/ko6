@@ -20,7 +20,7 @@ export const parseDefaults = {
   closingTagAncestorBreakers
 }
 
-export function parserko6 (str, options = parseDefaults) {
+export function templateParser (str, options = parseDefaults) {
   const startTime = performance.now();
 
   const tokens = lexer(str, options)

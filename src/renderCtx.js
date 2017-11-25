@@ -2,7 +2,7 @@ import { arrayForEach }  from './tko/tko.utils.js';
 import { unwrap }  from './tko/tko.observable.js';
 import { computed }  from './tko/tko.computed.js';
 
-import blockComponent  from './blocks/blockComponent.js';
+import { blockComponent }   from './blocks/blockComponent.js';
 
 function renderCtx(parentEl, tpl, ctx, level){
 	if(Array.isArray(tpl)){

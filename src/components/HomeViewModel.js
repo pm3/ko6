@@ -1,5 +1,5 @@
 import { arrayPushAll }  from '../tko/tko.utils.js';
-import { ko6, parserko6, observable, observableArray, computed }  from '../ko6.js';
+import * as ko6 from '../ko6.js';
 
 var startTime;
 var lastMeasure;
@@ -34,17 +34,7 @@ export function HomeViewModel () {
 	var self = this;
 	self.id = 1;
 
-	self.log = observable();
-
-	self.step = observable(1);
-
-	self.tpl1 = computed( 
-		function(){
-			if(self.step()==1) return parserko6('<p><i><span>step </span>{m.step()}</i></p>');
-			if(self.step()==2) return parserko6('<p><b><span>step </span>{m.step()}</b></p>');
-			if(self.step()==3) return parserko6('<p><b><i><span>step </span>{m.step()}</i></b></p>');
-			return parserko6('<p><span>step </span>{m.step().length}</p>');
-		}, this);
+	self.log = ko6.observable();
 
 	function _random(max) {
 		return Math.round(Math.random() * 1000) % max;
@@ -64,8 +54,8 @@ export function HomeViewModel () {
 		return data;
 	}
 
-	self.selected = observable(null);
-	self.data = observableArray();
+	self.selected = ko6.observable(null);
+	self.data = ko6.observableArray();
 
 	self.run = function () {
 		startMeasure("run");
@@ -142,7 +132,7 @@ export function ItemViewModel (data, parent) {
 	var self = this;
 
 	self.id = data.id;
-	self.label = observable(data.label);
+	self.label = ko6.observable(data.label);
 
 	self.del = function () {
 		parent.del(self);
@@ -152,3 +142,5 @@ export function ItemViewModel (data, parent) {
 		parent.select(self.id);
 	};
 };
+
+ko6.registerComponent('HomeView', { model:HomeViewModel, templateUrl: 'src/components/HomeView.html' });

@@ -1,29 +1,20 @@
-import { ko6c, renderCtx }  from './ko6.js';
-
-import { HomeViewModel } from './components/HomeViewModel.js';
+import * as ko6 from './ko6.js';
 
 console.log('start');
 
-renderCtx.registerComponent('HomeViewModel', { model:HomeViewModel, templateUrl:'src/components/HomeViewModel.html'});
+function autoDefineComponent(def){
 
-/*
-setInterval(function(){ 
-	var raw = window.mainModel.step()+1;
-	if(raw>5) raw = 1;
-	window.mainModel.step(raw);
-}, 1000);
-*/
+	if(def.name && def.empty){
+
+		//empty definition
+		delete def.empty;
+		def.es6module = 'src/components/'+def.name+"Model.js";
+	}
+}
+
+ko6.componentLoaders.unshift(autoDefineComponent);
 
 var el = document.getElementById("main");
-window.rootCtx = ko6c(el, 'HomeViewModel', {});
+window.rootCtx = ko6.main(el, 'HomeView', {});
 
-//ko6(el, x, window.mainModel);
 
-setTimeout(function(){ 
-	
-	var script = document.createElement('script');
-	script.type = "module";
-	script.textContent = `import test from './src/test.js'; console.log(test, test.a);`;
-	document.getElementsByTagName('head')[0].appendChild(script);
-
-}, 100);
