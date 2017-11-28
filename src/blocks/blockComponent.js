@@ -17,9 +17,9 @@ export function blockComponent(stamp, tpl, ctx0, level){
 
 		dependencyDetection.ignore(function(){
 
-			var callback = function(modelFn, view) {
-				var model = {};
-				for (var name in tpl.attrs) if (tpl.attrs.hasOwnProperty(name)) model[name] = ctx0.expr(tpl.attrs[name]);
+			const callback = function(modelFn, view) {
+				let model = {};
+				for (let name in tpl.attrs) if (tpl.attrs.hasOwnProperty(name)) model[name] = ctx0.expr(tpl.attrs[name]);
 				if(modelFn){
 					model = new modelFn(model);
 				}
@@ -42,7 +42,7 @@ export var componentLoaders = [];
 
 export function registerComponent(name, def0, callback){
 
-	var def = registerComponent.componentMap[name];
+	let def = registerComponent.componentMap[name];
 	console.log('registerComponent ' + name, def0, def);
 	
 	//undefined component, undefined definition, create empty definition
@@ -52,7 +52,7 @@ export function registerComponent(name, def0, callback){
 
 	//merge definition
 	if(def && def0){
-		for (var name in def0) if (def0.hasOwnProperty(name)) def[name] = def0[name];
+		for (let name in def0) if (def0.hasOwnProperty(name)) def[name] = def0[name];
 		if(def.asynchModel && def.model) delete def.asynchModel;
 		if(def.asynchTemplate && def.template) delete def.asynchTemplate;
 	}
@@ -72,7 +72,7 @@ export function registerComponent(name, def0, callback){
 
 	//definition was changed - run all loaders
 	if(def0){
-		componentLoaders.forEach( (f) => f(def) );
+		for(let i=0, max=componentLoaders.length; i<max; i++) componentLoaders[i](def);
 	}
 
 	//check if is running loading model or template
@@ -94,7 +94,7 @@ export function registerComponent(name, def0, callback){
 		
 		//render waiting callbacks
 		if(def.waitingCallbacks) {
-			def.waitingCallbacks.forEach( (c) => c(def.model, def.template) );
+			for(let i=0, max=def.waitingCallbacks.length; i<max; i++) def.waitingCallbacks[i](def.model, def.template);
 			delete def.waitingCallbacks;
 		} 
 
@@ -120,7 +120,7 @@ function templateAjaxLoader(def){
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', def.templateUrl);
 		xhr.onload = function(){
-			var def2 = (xhr.status==200) ? { template : xhr.responseText } : { error : 'templateAjaxLoader state=' + xhr.state };
+			let def2 = (xhr.status==200) ? { template : xhr.responseText } : { error : 'templateAjaxLoader state=' + xhr.state };
 			registerComponent(def.name, def2);
 		};
 		xhr.send();
@@ -132,7 +132,7 @@ function es6loader(def){
 	if (!def.model && !def.asynchModel && def.es6module) {
 
 		def.asynchModel = "es6loader "+def.es6module;
-		var script = document.createElement('script');
+		const script = document.createElement('script');
 		script.src = def.es6module;
 		script.type = "module";
 		document.head.appendChild(script);

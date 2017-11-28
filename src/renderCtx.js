@@ -6,7 +6,7 @@ import { blockComponent }   from './blocks/blockComponent.js';
 function renderCtx(parentEl, tpl, ctx, level){
 	if(Array.isArray(tpl)){
 		//is array
-		for(var i=0; i<tpl.length; i++){
+		for(let i=0, max=tpl.length; i<max; i++){
 			renderCtx(parentEl, tpl[i], ctx, level);
 		}
 	} else if(tpl.tag){
@@ -114,7 +114,11 @@ function renderElement(parentEl, tpl, ctx, level){
 		}
 	}
 	insertNode(parentEl, el);
-	if(tpl.children) tpl.children.forEach( (x) => renderCtx(el, x, ctx, level+1) );
+	if(tpl.children) {
+		for(let i=0, max=tpl.children.length; i<max; i++){
+			renderCtx(el, tpl.children[i], ctx, level+1)
+		}
+	}
 };
 
 function renderBlock(parentEl, tpl, ctx, level){
@@ -155,13 +159,19 @@ function Ctx(model, parent, root, component){
 	this.subscribers = [];
 }
 Ctx.prototype.dispose = function(){
-	this.subscribers.forEach(function(e) { if(e.dispose) e.dispose() } );
+	for(let i=0, max=this.subscribers.length; i<max; i++) {
+		const e = this.subscribers[i];
+		if(e.dispose) e.dispose();	
+	} 
 	this.subscribers = [];
-	this.rootNodes.forEach(function(n) { if(n.parentNode) n.parentNode.removeChild(n) } );
+	for(let i=0, max=this.rootNodes.length; i<max; i++) {
+		const n = this.rootNodes[i];
+		if(n.parentNode) n.parentNode.removeChild(n);
+	} 
 	this.rootNodes = [];
 }
 Ctx.prototype.createChild = function(model){
-	var ctx0 = new Ctx(model || this.model, this.parent, this.root, this.component);
+	const ctx0 = new Ctx(model || this.model, this.parent, this.root, this.component);
 	this.subscribers.push(ctx0);
 	return ctx0;
 }

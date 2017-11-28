@@ -9,17 +9,17 @@ export default function blockTemplate(stamp, tpl, ctx0, level){
 		var val2 = ctx0.expr(value);
 		val2 = unwrap(val2);
 
-		//remove old template
 		dependencyDetection.ignore(function(){
-			ctx0.dispose();
-		});
 
-		if(val2){
-			//render value tpl
-			dependencyDetection.ignore(function(){
+			//remove old template
+			ctx0.dispose();
+
+			if(val2){
+				//render value tpl
 				renderCtx(stamp, val2, ctx0, 0);
-			});
-		}
+			}
+
+		});
 
 	}
 

@@ -7,8 +7,7 @@ var lastMeasure;
 function getCount(parent){
     var relevantChildren = 1;
     if(parent.subscribers){
-	    var max = parent.subscribers.length;
-    	for(var i=0; i < max; i++) relevantChildren += getCount(parent.subscribers[i]);
+    	for(let i=0, max = parent.subscribers.length; i < max; i++) relevantChildren += getCount(parent.subscribers[i]);
 	}
     return relevantChildren;
 }

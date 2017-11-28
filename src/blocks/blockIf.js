@@ -13,17 +13,16 @@ export default function blockIf(stamp, tpl, ctx0, level){
 		if(val2===ctx0.lastVal) return;
 		ctx0.lastVal = val2;
 
-		//remove old children tpl
 		dependencyDetection.ignore(function(){
+	
+			//remove old children tpl
 			ctx0.dispose();
-		});
-
-		if(val2){
-			//render new children tpl
-			dependencyDetection.ignore(function(){
+	
+			if(val2){
+				//render new children tpl
 				renderCtx(stamp, tpl.children, ctx0, 0);
-			});
-		}
+			}
+		});
 	}
 
 }

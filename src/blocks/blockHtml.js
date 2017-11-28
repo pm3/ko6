@@ -13,10 +13,10 @@ export default function blockHtml(stamp, tpl, ctx0, level){
 
 		if(typeof(val2) != 'undefined' && val2 != null){
 			//add new
-			var div = document.createElement('div');
+			const div = document.createElement('div');
 			div.innerHTML = ""+val2;
 			ctx0.rootNodes = Array.prototype.slice.call(div.childNodes);
-			for (var i = 0; i < ctx0.rootNodes.length; i++) { 
+			for (let i = 0; i < ctx0.rootNodes.length; i++) { 
 			    stamp[0].insertBefore(ctx0.rootNodes[i], stamp[1]);
 			}
 		}
