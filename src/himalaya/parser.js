@@ -1,4 +1,3 @@
-import {arrayIncludes} from './compat.js'
 
 export default function parser (tokens, options) {
   const root = {tagName: null, children: []}
@@ -16,7 +15,7 @@ export function hasTerminalParent (tagName, stack, terminals) {
       if (parentTagName === tagName) {
         break
       }
-      if (arrayIncludes(tagParents, parentTagName)) {
+      if (tagParents.indexOf(parentTagName)>=0) {
         return true
       }
       currentIndex--
@@ -55,7 +54,7 @@ export function parse (state) {
       break
     }
 
-    const isClosingTag = arrayIncludes(options.closingTags, tagName)
+    const isClosingTag = options.closingTags.indexOf(tagName)>=0
     let shouldRewindToAutoClose = isClosingTag
     if (shouldRewindToAutoClose) {
       const { closingTagAncestorBreakers: terminals } = options
@@ -95,7 +94,7 @@ export function parse (state) {
       children
     })
 
-    const hasChildren = !(attrToken.close || arrayIncludes(options.voidTags, tagName))
+    const hasChildren = !(attrToken.close || options.voidTags.indexOf(tagName)>=0)
     if (hasChildren) {
       stack.push({tagName, children})
       const innerState = {tokens, options, cursor, stack}

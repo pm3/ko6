@@ -24,9 +24,9 @@ function main(parent, cname, params){
 	var ctx2 = new Ctx(null);
 	registerComponent(cname, null, function(modelFn, view){
 
-		var model = params || {};
+		let model = params || {};
 		if(modelFn){
-			model = new modelFn(params || {});
+			model = new modelFn(model);
 		}
 		ctx2.model = model;
 		ctx2.root = model;

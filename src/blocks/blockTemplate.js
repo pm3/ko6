@@ -1,7 +1,6 @@
 import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
 import { renderCtx }  from '../renderCtx.js';
 
-
 export default function blockTemplate(stamp, tpl, ctx0, level){
 
 	if(tpl.attrs && tpl.attrs['value'] && tpl.attrs['value'].call){

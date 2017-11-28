@@ -1,4 +1,3 @@
-import { arrayForEach }  from '../tko/tko.utils.js';
 import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
 import { computed }  from '../tko/tko.computed.js';
 import { renderCtx }  from '../renderCtx.js';
@@ -107,7 +106,7 @@ function mergeItemsMap(items2, eqMin, tpl, ctx0, parent, stamp1){
 		var ctx2 = reusedCtx[i];
 		if(ctx2){
 			//reuse
-			arrayForEach(ctx2.rootNodes, function(n) { 
+			ctx2.rootNodes.forEach(function(n) { 
 				parent.insertBefore(n,beforeNode);
 			});
 			ctx0.subscribers.push(ctx2);

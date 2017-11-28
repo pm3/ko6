@@ -16,5 +16,3 @@ ko6.componentLoaders.unshift(autoDefineComponent);
 
 var el = document.getElementById("main");
 window.rootCtx = ko6.main(el, 'HomeView', {});
-
-

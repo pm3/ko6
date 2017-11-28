@@ -1,4 +1,3 @@
-import { arrayForEach }  from './tko/tko.utils.js';
 import { unwrap }  from './tko/tko.observable.js';
 import { computed }  from './tko/tko.computed.js';
 
@@ -115,7 +114,7 @@ function renderElement(parentEl, tpl, ctx, level){
 		}
 	}
 	insertNode(parentEl, el);
-	if(tpl.children) arrayForEach(tpl.children, function(x){ renderCtx(el, x, ctx, level+1); });
+	if(tpl.children) tpl.children.forEach( (x) => renderCtx(el, x, ctx, level+1) );
 };
 
 function renderBlock(parentEl, tpl, ctx, level){

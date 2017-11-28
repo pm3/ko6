@@ -18,9 +18,10 @@ export function blockComponent(stamp, tpl, ctx0, level){
 		dependencyDetection.ignore(function(){
 
 			var callback = function(modelFn, view) {
-				var model = tpl.attrs;
+				var model = {};
+				for (var name in tpl.attrs) if (tpl.attrs.hasOwnProperty(name)) model[name] = ctx0.expr(tpl.attrs[name]);
 				if(modelFn){
-					model = new modelFn(tpl.attrs);
+					model = new modelFn(model);
 				}
 				ctx0.model = model;
 				ctx0.compoent = model;
@@ -51,9 +52,7 @@ export function registerComponent(name, def0, callback){
 
 	//merge definition
 	if(def && def0){
-		for (var name in def0) {
-  			if (def0.hasOwnProperty(name)) def[name] = def0[name];
-  		}
+		for (var name in def0) if (def0.hasOwnProperty(name)) def[name] = def0[name];
 		if(def.asynchModel && def.model) delete def.asynchModel;
 		if(def.asynchTemplate && def.template) delete def.asynchTemplate;
 	}
