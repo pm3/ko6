@@ -19,13 +19,13 @@ function renderCtx(parentEl, tpl, ctx, level){
 		}
 	} else if(tpl && typeof tpl == "function"){
 		//is text expresssion
-		var n = document.createTextNode("");
+		const n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
 		textExpr(n, tpl, ctx, level);
 	} else if(tpl !== undefined || tpl !== null){
 		//is text
-		var n = document.createTextNode(""+tpl);
+		const n = document.createTextNode(""+tpl);
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
 	}
@@ -40,7 +40,7 @@ function insertNode(parentEl, n) {
 }
 
 function createStamp(parentEl, name){
-	var stamp =	document.createComment(name);
+	const stamp = document.createComment(name);
 	if(parentEl.nodeType) {
 		parentEl.appendChild(stamp);
 		return [parentEl, stamp];
@@ -103,10 +103,10 @@ function textExpr(n, val, ctx, level){
 };
 
 function renderElement(parentEl, tpl, ctx, level){
-	var el = document.createElement(tpl.tag);
+	const el = document.createElement(tpl.tag);
 	if(level==0) ctx.rootNodes.push(el);
-	for (var key in tpl.attrs) {
-		var val = tpl.attrs[key];
+	for (let key in tpl.attrs) {
+		const val = tpl.attrs[key];
 		if(typeof val == "function"){
 			attrExpr(el, key, val, ctx);
 		} else {
