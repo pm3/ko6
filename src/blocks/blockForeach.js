@@ -106,7 +106,7 @@ function mergeItemsMap(items2, eqMin, tpl, ctx0, parent, stamp1){
 		let ctx2 = reusedCtx[i];
 		if(ctx2){
 			//reuse
-			for(let i2=0, max2=ctx2.rootNodes; i2<max2; i2++){
+			for(let i2=0, max2=ctx2.rootNodes.length; i2<max2; i2++){
 				parent.insertBefore(ctx2.rootNodes[i2],beforeNode);
 			};
 			ctx0.subscribers.push(ctx2);
