@@ -1,5 +1,5 @@
-import { arrayPushAll }  from '../tko/tko.utils.js';
-import * as ko6 from '../ko6.js';
+import { arrayPushAll }  from '../../src/tko/tko.utils.js';
+import * as ko6 from '../../src/ko6.js';
 
 export function TestBlocksModel () {
 
@@ -24,4 +24,4 @@ setInterval(function(){
 }, 1000);
 
 
-ko6.registerComponent('TestBlocks', { model:TestBlocksModel, templateUrl: 'src/components/TestBlocks.html' });
+ko6.registerComponent('TestBlocks', { model:TestBlocksModel, templateUrl: 'app/components/TestBlocks.html' });

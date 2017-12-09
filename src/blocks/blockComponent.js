@@ -128,6 +128,18 @@ function templateAjaxLoader(def){
 }
 componentLoaders.push(templateAjaxLoader);
 
+function jsloader(def){
+	if (!def.model && !def.asynchModel && def.jsmodule) {
+
+		def.asynchModel = "jsloader "+def.jsmodule;
+		const script = document.createElement('script');
+		script.src = def.jsmodule;
+		script.type = "text/javascript";
+		document.head.appendChild(script);
+	}
+}
+componentLoaders.push(jsloader);
+
 function es6loader(def){
 	if (!def.model && !def.asynchModel && def.es6module) {
 

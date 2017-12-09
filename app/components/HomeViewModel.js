@@ -1,5 +1,5 @@
-import { arrayPushAll }  from '../tko/tko.utils.js';
-import * as ko6 from '../ko6.js';
+import { arrayPushAll }  from '../../src/tko/tko.utils.js';
+import * as ko6 from '../../src/ko6.js';
 
 var startTime;
 var lastMeasure;
@@ -142,4 +142,4 @@ export function ItemViewModel (data, parent) {
 	};
 };
 
-ko6.registerComponent('HomeView', { model:HomeViewModel, templateUrl: 'src/components/HomeView.html' });
+ko6.registerComponent('HomeView', { model:HomeViewModel, templateUrl: 'app/components/HomeView.html' });

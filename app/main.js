@@ -1,4 +1,4 @@
-import * as ko6 from './ko6.js';
+import * as ko6 from '../src/ko6.js';
 
 console.log('start');
 
@@ -8,7 +8,14 @@ function autoDefineComponent(def){
 
 		//empty definition
 		delete def.empty;
-		def.es6module = 'src/components/'+def.name+"Model.js";
+
+		if(window.webpackJsonp){
+			//source compiled in webpack
+			def.jsmodule = 'dist/'+def.name+"Model.bundle.js";
+			return;
+		}
+
+		def.es6module = 'app/components/'+def.name+"Model.js";
 	}
 }
 
