@@ -50,8 +50,20 @@ export function findTextEnd (str, index) {
 
 export function lexText (state) {
   const type = 'text'
-  const {str, cursor} = state
-  const textEnd = findTextEnd(str, cursor)
+  let {str, cursor} = state
+  let textEnd = -1
+  while(true){
+    textEnd = findTextEnd(str, cursor)
+    let exprStart = str.indexOf('{', cursor)
+    if(exprStart>cursor && (exprStart<textEnd || textEnd==-1)) {
+      state.tokens.push({type, content : str.slice(cursor, exprStart) })
+      const exprEnd = lexExpression(str, cursor)
+      state.tokens.push({type, content : str.slice(exprStart, exprEnd + 1) })
+      cursor = exprEnd + 1
+    } else {
+      break
+    }
+  }
   if (textEnd === -1) {
     // there is only text left
     const content = str.slice(cursor)
@@ -171,6 +183,14 @@ export function lexTagAttributes (state) {
       continue
     }
 
+    const isExprStart = char === '{'
+    if(isExprStart) {
+      const exprEnd = lexExpression(str, cursor)
+      words.push(str.slice(wordBegin, exprEnd+1))
+      wordBegin = cursor = exprEnd + 1
+      continue
+    }
+
     const isQuoteStart = char === '\'' || char === '"'
     if (isQuoteStart) {
       quote = char
@@ -222,6 +242,23 @@ export function lexTagAttributes (state) {
 
     tokens.push({type, content: word})
   }
+}
+
+export function lexExpression(str, cursor) {
+  let braces = 0
+  let quote = null
+  const len = str.length
+  while (cursor < len) {
+    const char = str.charAt(cursor)
+    if(char=='}' && quote==null && --braces==0) return cursor
+    else if(char=='{' && quote==null) braces++
+    else if(char=='\'' && quote=='\'' && str.charAt(cursor-1)!='\\') quote=null
+    else if(char=='\'' && quote==null) quote='\''
+    else if(char=='"' && quote=='"' && str.charAt(cursor-1)!='\\') quote=null
+    else if(char=='"' && quote==null) quote='"'
+    cursor++  
+  }
+  return cursor-1
 }
 
 export function lexSkipTag (tagName, state) {

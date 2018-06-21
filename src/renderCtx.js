@@ -107,7 +107,7 @@ function renderElement(parentEl, tpl, ctx, level){
 	if(level==0) ctx.rootNodes.push(el);
 	for (let key in tpl.attrs) {
 		const val = tpl.attrs[key];
-		if(typeof val == "function"){
+		if(val.call){
 			attrExpr(el, key, val, ctx);
 		} else {
 			el.setAttribute(key, val);
