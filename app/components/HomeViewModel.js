@@ -17,6 +17,8 @@ var startMeasure = function (name) {
 	lastMeasure = name;
 };
 var stopMeasure = function () {
+	console.log(lastMeasure + " sync " + (performance.now() - startTime));
+	if(window.mainModel) window.mainModel.log2(lastMeasure + " sync " + (performance.now() - startTime).toFixed(0)+"ms");
 	window.setTimeout(function () {
 		var stop = performance.now();
 		console.log(lastMeasure + " took " + (stop - startTime));
@@ -34,6 +36,7 @@ export function HomeViewModel () {
 	self.id = 1;
 
 	self.log = ko6.observable();
+	self.log2 = ko6.observable();
 
 	function _random(max) {
 		return Math.round(Math.random() * 1000) % max;

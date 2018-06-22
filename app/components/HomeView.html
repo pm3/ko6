@@ -4,6 +4,7 @@
             <div class="col-md-6">
                 <h1>Knockout JSX</h1>
                 <p>{m.log}</p>
+                <p>{m.log2}</p>
             </div>
             <div class="col-md-6">
                 <div class="row">
@@ -31,19 +32,15 @@
         </div>
     </div>
     <table class="table table-hover table-striped test-data">
-		<tbody>
-			<tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
-			<Foreach items={m.data} key={m.id}>
-				<tr>
-					<td class="col-md-1">{m.id}</td>
-					<td class="col-md-4">
-						<a click={m.select}>{m.label}</a>
-					</td>
-					<td class="col-md-1"><a click={m.del}><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
-					<td class="col-md-6"></td>
-				</tr>
-			</Foreach>
-			<tr><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+		<tbody foreach={m.data}>
+			<tr>
+				<td class="col-md-1">{m.id}</td>
+				<td class="col-md-4">
+					<a click={m.select}>{m.label}</a>
+				</td>
+				<td class="col-md-1"><a click={m.del}><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>
+				<td class="col-md-6"></td>
+			</tr>
 		</tbody>
     </table>
     <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
