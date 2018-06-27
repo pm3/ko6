@@ -52,16 +52,17 @@ function walknodes(nodes, arr){
 					el.attrs[a.name] = a.value;
 				}
 			} 
-			if(blockParams && blockParams.length>1) {
+			if(blockParams) {
 				if(el.params){
-					console.warm('ignore block attributes, exist attribude $params '+el.block+'['+el.params+']');
+					console.warn('ignore block attributes, exist attribude $params '+el.block+'['+el.params+']');
 				} else {
+
 					blockParams.push('}');
 					el.params = blockParams.join('');
 				}
 				if(lblockConfig && !lblockConfig[el.block]){
 					if(el.name){
-						console.warm('ignore component attribute $name, use ellement name '+el.block+'['+el.params+']');
+						console.warn('ignore component attribute $name, use ellement name '+el.block+'['+el.params+']');
 					}
 					el.name = el.block;
 					el.block = 'ko-component';
@@ -94,12 +95,12 @@ function walknodes(nodes, arr){
 		} else if(n.nodeType==Node.TEXT_NODE){
 			//text node
 			const s = n.nodeValue.trim();
-			if(s.length>0) arr.push(s);
+			if(s.length>0) arr.push(n.nodeValue);
 		} else if(n.nodeType==Node.COMMENT_NODE){
 			//comment, check virtual nodes
-			const s = n.nodeValue.trim().split(/\s+/, 2);
+			const s = n.nodeValue.trim().split(/\s+/);
 			const vname = s[0];
-			const vparams = s[1];
+			const vparams = s.slice(1).join(' ');
 			if(lblockConfig && lblockConfig[vname]){
 				//block virtual element
 				const conf = lblockConfig[vname];
@@ -141,7 +142,7 @@ function findEndVirtualBlock(nodes, blockName, pos){
 
 function parseJsExression(s){
 	if(/^\{.*\}$/.test(s)){
-		if(/^{\s*[a-z0-9]+\s*:/.test(s)) return s;	
+		if(/^{\s*[a-z0-9\$]+\s*:/.test(s)) return s;	
 		return s.slice(1, -1);
 	} 
 	throw 'parse expression error, no wraped expression to {} '+s;

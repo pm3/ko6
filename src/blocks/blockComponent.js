@@ -5,6 +5,7 @@ import { templateParser }  from '../templateParser.js';
 
 export function blockComponent(stamp, tpl, ctx0){
 
+	console.log('render component ', tpl);
 	var name = null;
 	if(tpl.name && tpl.name.call){
 		name = ctx0.expr(tpl.name);
@@ -20,8 +21,9 @@ export function blockComponent(stamp, tpl, ctx0){
 		params = unwrap(params);
 	}
 	
-	if(!name && params && params.name){
-		let name2 = unwrap(params.name);
+	if(!name && params && params.$name){
+		if(params.$name) console.log('execute component name ', params.$name);
+		let name2 = unwrap(params.$name);
 		if(typeof name2 == 'string'){
 			name = name2;
 		}
@@ -37,12 +39,11 @@ export function blockComponent(stamp, tpl, ctx0){
 		dependencyDetection.ignore(function(){
 
 			const callback = function(modelFn, view) {
-				if(modelFn){
-					model = new modelFn(params);
-				}
+				let model = modelFn ? new modelFn(params) : params;
 				ctx0.model = model;
-				ctx0.compoent = model;
-				ctx0.subscribers.push(model);
+				ctx0.component = model;
+				if(model.dispose && model.dispose.call)
+					ctx0.subscribers.push(model);
 				renderCtx(stamp, view, ctx0, 0);
 			};
 
@@ -50,9 +51,8 @@ export function blockComponent(stamp, tpl, ctx0){
 
 		});
 
-
 	}
-
+	return name;
 }
 
 export var componentLoaders = [];
@@ -60,7 +60,7 @@ export var componentLoaders = [];
 export function registerComponent(name, def0, callback){
 
 	let def = registerComponent.componentMap[name];
-	console.log('registerComponent ' + name, def0, def);
+	//console.log('registerComponent ' + name, def0, def);
 	
 	//undefined component, undefined definition, create empty definition
 	if(!def && !def0){

@@ -1,4 +1,4 @@
-import { observable, observableArray } from './tko/tko.observable.js';
+import { observable, observableArray, unwrap } from './tko/tko.observable.js';
 import { computed, isPureComputed, pureComputed }  from './tko/tko.computed.js';
 import { renderCtx, bindAttr, bindText, bindBlock, Ctx }  from './renderCtx.js';
 import { templateParser }  from './templateParser.js';
@@ -45,11 +45,16 @@ function main(parent, cname, params){
 	return ctx2;
 };
 
+function ko2json(obj){
+	return JSON.stringify(obj, function(k,v) { return unwrap(v) });
+}
+
 export {
 	main,
 	templateParser,
-	observable,	observableArray,
+	observable,	observableArray, unwrap,
 	computed, pureComputed, isPureComputed,
 	registerComponent, componentLoaders,
-	renderCtx, bindAttr, bindText, bindBlock
+	renderCtx, bindAttr, bindText, bindBlock,
+	ko2json
 };
