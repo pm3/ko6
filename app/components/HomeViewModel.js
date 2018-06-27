@@ -7,7 +7,8 @@ var lastMeasure;
 function getCount(parent){
     var relevantChildren = 1;
     if(parent.subscribers){
-    	for(let i=0, max = parent.subscribers.length; i < max; i++) relevantChildren += getCount(parent.subscribers[i]);
+    	for(let i=0, max = parent.subscribers.length; i < max; i++) 
+    		relevantChildren += getCount(parent.subscribers[i]);
 	}
     return relevantChildren;
 }
@@ -144,5 +145,7 @@ export function ItemViewModel (data, parent) {
 		parent.select(self.id);
 	};
 };
+
+
 
 ko6.registerComponent('HomeView', { model:HomeViewModel, templateUrl: 'app/components/HomeView.html' });

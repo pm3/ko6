@@ -1,22 +1,21 @@
 import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
 import { renderCtx }  from '../renderCtx.js';
 
-export default function blockTemplate(stamp, tpl, ctx0, level){
+export default function blockTemplate(stamp, tpl, ctx0){
 
-	if(tpl.attrs && tpl.attrs['value'] && tpl.attrs['value'].call){
-		
-		var value = tpl.attrs['value'];
-		var val2 = ctx0.expr(value);
-		val2 = unwrap(val2);
+	let value = null;
+	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
+		value = ctx0.expr(tpl.attrs['$params']);
+		value = unwrap(value);
 
 		dependencyDetection.ignore(function(){
 
 			//remove old template
 			ctx0.dispose();
 
-			if(val2){
+			if(value){
 				//render value tpl
-				renderCtx(stamp, val2, ctx0, 0);
+				renderCtx(stamp, value, ctx0, 0);
 			}
 
 		});
@@ -24,3 +23,5 @@ export default function blockTemplate(stamp, tpl, ctx0, level){
 	}
 
 }
+
+blockTemplate.virtualClosingTag = true;

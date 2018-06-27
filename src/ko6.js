@@ -1,6 +1,6 @@
 import { observable, observableArray } from './tko/tko.observable.js';
 import { computed, isPureComputed, pureComputed }  from './tko/tko.computed.js';
-import { renderCtx, Ctx }  from './renderCtx.js';
+import { renderCtx, bindAttr, bindText, bindBlock, Ctx }  from './renderCtx.js';
 import { templateParser }  from './templateParser.js';
 
 import { blockComponent, registerComponent, componentLoaders }  from './blocks/blockComponent.js';
@@ -11,13 +11,16 @@ import blockTemplate  from './blocks/blockTemplate.js';
 
 import clickHandler  from './bindings/click.js';
 
-renderCtx.blocks['Component'] = blockComponent;
-renderCtx.blocks['Foreach'] = blockForeach;
-renderCtx.blocks['If'] = blockIf;
-renderCtx.blocks['Html'] = blockHtml;
-renderCtx.blocks['Template'] = blockTemplate;
+renderCtx.blocks['ko-component'] = blockComponent;
+renderCtx.blocks['ko-foreach'] = blockForeach;
+renderCtx.blocks['ko-if'] = blockIf;
+renderCtx.blocks['ko-html'] = blockHtml;
+renderCtx.blocks['ko-template'] = blockTemplate;
+
+templateParser.blockConfig = renderCtx.blocks;
 
 renderCtx.bindingHandlers['click'] = clickHandler;
+renderCtx.registerComponent = registerComponent;
 
 function main(parent, cname, params){
 
@@ -31,7 +34,9 @@ function main(parent, cname, params){
 		ctx2.model = model;
 		ctx2.root = model;
 		ctx2.component = model;
-		renderCtx(parent, view, ctx2, 0);
+		const el = document.createComment('main');
+		parent.appendChild(el);
+		renderCtx([parent, el], view, ctx2, 0);
 	});
 	return ctx2;
 };
@@ -42,5 +47,5 @@ export {
 	observable,	observableArray,
 	computed, pureComputed, isPureComputed,
 	registerComponent, componentLoaders,
-	renderCtx
+	renderCtx, bindAttr, bindText, bindBlock
 };

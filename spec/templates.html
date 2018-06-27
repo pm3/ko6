@@ -1,0 +1,81 @@
+<body>
+
+	<!-- bindings -->
+	<div class="aa"><p>Hello</p></div>
+
+	<div ko-class={m.className}><p>Hello</p></div>
+
+	<div ko-class='{m.className() ? m.className() : "base" }'><p>Hello</p></div>
+
+	<div ko-class="{m.count() > 3 ? 'big' : 'small' }"><p>Hello</p></div>
+
+	<div ko-bind="{{ a:'1', b:m.prop, c:function(){ return m.prop } }}"><p>Hello</p></div>
+
+	<!-- blocks text, html, if, foreach, component, template -->
+
+	<!-- binding attr to block -->
+	<div ko-foreach={items:m.rows}>
+		<p>Hello</p>
+	</div>
+
+	<!-- block custom element -->
+	<div>
+		<ko-foreach items={m.rows}>
+			<p>Hello</p>
+		</ko-foreach>
+	</div>
+
+	<!-- block virtual element -->
+	<div>
+		<!-- ko-foreach items:m.rows -->
+			<p>Hello</p>
+		<!-- /ko-foreach -->
+	</div>
+
+	<!-- inline blocks -->
+	<div><p>Hello <!-- ko-text m.name --></p></div>
+	<div><p>Hello <!-- ko-html m.name --></p></div>
+
+	<!-- component block -->
+	<div>
+		<ko-component $name='component-name' a="3" b={m.name}>
+			<p>Hello</p>
+		</ko-component>
+	</div>
+	<div>
+		<ko-component $name='component-name' $params='{a:"3", b:m.name}'>
+			<p>Hello</p>
+		</ko-component>
+	</div>
+	<div>
+		<ko-component $params='{$name="component-name", a:"3", b:m.name}'>
+			<p>Hello</p>
+		</ko-component>
+	</div>
+
+	<div>
+		<!-- ko-component $name:'component-name', a:'3', b:{m.name} -->
+			<p>Hello</p>
+		<!-- /ko-component -->
+	</div>
+
+	<!-- component custom el -->
+	<div>
+		<component-name a=3 b={m.name}>
+			<p>Hello</p>
+		</component-name>
+	</div>
+	<div>
+		<component-name $params='{a:"3", b:m.name}'>
+			<p>Hello</p>
+		</component-name>
+	</div>
+
+	<!-- component virtual el -->
+	<div>
+		<!-- ko:component-name a:"3", b:m.name -->
+			<p>Hello</p>
+		<!-- ko:component-name -->
+	</div>
+
+</body>

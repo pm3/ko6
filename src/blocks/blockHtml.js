@@ -1,20 +1,19 @@
 import { unwrap }  from '../tko/tko.observable.js';
 
-export default function blockHtml(stamp, tpl, ctx0, level){
+export default function blockHtml(stamp, tpl, ctx0){
 
-	if(tpl.attrs && tpl.attrs['value'] && tpl.attrs['value'].call){
+	let value = null;
+	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
+		value = ctx0.expr(tpl.attrs['$params']);
+		value = unwrap(value);
 		
-		var value = tpl.attrs['value'];
-		var val2 = ctx0.expr(value);
-		val2 = unwrap(val2);
-
 		//remove old
 		ctx0.dispose();
 
-		if(typeof(val2) != 'undefined' && val2 != null){
+		if(typeof(value) != 'undefined' && value != null){
 			//add new
 			const div = document.createElement('div');
-			div.innerHTML = ""+val2;
+			div.innerHTML = ""+value;
 			ctx0.rootNodes = Array.prototype.slice.call(div.childNodes);
 			for (let i = 0; i < ctx0.rootNodes.length; i++) { 
 			    stamp[0].insertBefore(ctx0.rootNodes[i], stamp[1]);
@@ -23,3 +22,5 @@ export default function blockHtml(stamp, tpl, ctx0, level){
 
 	}
 }
+
+blockHtml.virtualClosingTag = true;

@@ -10,47 +10,44 @@ function renderCtx(parentEl, tpl, ctx, level){
 			renderCtx(parentEl, tpl[i], ctx, level);
 		}
 	} else if(tpl.tag){
-		if(tpl.tag.toLowerCase()!=tpl.tag || tpl.tag.indexOf('-')>0){
+		if(tpl.tag.indexOf('-')>=0){
 	   		//is block
-	   		renderBlock(parentEl, tpl, ctx, level);
+	   		const stamp = insertNode(parentEl, document.createComment(tpl.tag));
+	   		bindBlock(stamp, tpl, ctx);
 		} else {
 			//is html element
-			renderElement(parentEl, tpl, ctx, level)
+			const el = document.createElement(tpl.tag);
+			for (let key in tpl.attrs) {
+				const val = tpl.attrs[key];
+				if(val.call){
+					bindAttr(el, key, val, ctx);
+				} else {
+					el.setAttribute(key, val);
+				}
+			}
+			if(level==0) ctx.rootNodes.push(el);
+			insertNode(parentEl, el);
+			if(tpl.children) {
+				for(let i=0, max=tpl.children.length; i<max; i++){
+					renderCtx(el, tpl.children[i], ctx, level+1)
+				}
+			}
 		}
-	} else if(tpl && typeof tpl == "function"){
+	} else if(tpl && tpl.call){
 		//is text expresssion
 		const n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
-		textExpr(n, tpl, ctx, level);
+		bindText(n, tpl, ctx);
 	} else if(tpl !== undefined || tpl !== null){
-		//is text
+		//is static text
 		const n = document.createTextNode(""+tpl);
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
 	}
 }
 
-function insertNode(parentEl, n) {
-	if(parentEl.nodeType) {
-		parentEl.appendChild(n);
-	} else{
-		parentEl[0].insertBefore(n, parentEl[1]);
-	}
-}
-
-function createStamp(parentEl, name){
-	const stamp = document.createComment(name);
-	if(parentEl.nodeType) {
-		parentEl.appendChild(stamp);
-		return [parentEl, stamp];
-	} else{
-		parentEl[0].insertBefore(stamp, parentEl[1]);
-		return [parentEl[0], stamp];
-	}
-}
-
-function attrExpr(el, key, val, ctx){
+function bindAttr(el, key, val, ctx){
 	var binding = renderCtx.bindingHandlers[key];
 	if(binding){
 		if(binding.init){
@@ -58,91 +55,53 @@ function attrExpr(el, key, val, ctx){
 			binding.init(el, val2, ctx);
 		}
 		if(binding.update){
-			var kv = computed(function(){
+			ctx.computed(function(){
 				var val2 = ctx.expr(val);
 				binding.update(el, val2, ctx);
-			},this);
-			kv();
-			ctx.subscribers.push(kv);
+				return val2;
+			});
 		}
 		if(binding.dispose && binding.dispose.call){
-			var obj = {};
-			obj.dispose = function(){
-				binding.dispose(el, ctx);
-			};
-			ctx.subscribers.push(obj);
+			var disposer = { dispose: function(){ binding.dispose(el, ctx); }};
+			ctx.subscribers.push(disposer);
 		}
 	} else {
-		var kv = computed(function(){
+		ctx.computed(function(){
 			var val2 = ctx.expr(val);
 			val2 = unwrap(val2);
 			el.setAttribute(key, val2);
-		},this);
-		kv();
-		if(kv.getDependenciesCount()>0){
-			ctx.subscribers.push(kv);
-		} else {
-			kv.dispose();
-		}
+			return val2;
+		});
 	}
-};
+}
 
-function textExpr(n, val, ctx, level){
-	var kv = computed(function(){
+function bindText(node, val, ctx) {
+	ctx.computed(function(){
 		var val2 = ctx.expr(val);
 		val2 = unwrap(val2);
-		n.nodeValue = ""+val2;
+		node.nodeValue = ""+val2;
 		return val2;
-	}, this);
-	kv();
-	if(kv.getDependenciesCount()>0){
-		ctx.subscribers.push(kv);
-	} else {
-		kv.dispose();
-	}
-};
+	});
+}
 
-function renderElement(parentEl, tpl, ctx, level){
-	const el = document.createElement(tpl.tag);
-	if(level==0) ctx.rootNodes.push(el);
-	for (let key in tpl.attrs) {
-		const val = tpl.attrs[key];
-		if(val.call){
-			attrExpr(el, key, val, ctx);
-		} else {
-			el.setAttribute(key, val);
-		}
-	}
-	insertNode(parentEl, el);
-	if(tpl.children) {
-		for(let i=0, max=tpl.children.length; i<max; i++){
-			renderCtx(el, tpl.children[i], ctx, level+1)
-		}
-	}
-};
-
-function renderBlock(parentEl, tpl, ctx, level){
+function bindBlock(stamp, tpl, ctx) {
+	console.log('bindBlock-stamp', stamp, tpl);
 	var blockFn = renderCtx.blocks[tpl.tag];
-	if(!(blockFn && blockFn.call)){
-		blockFn = blockComponent;
-		tpl.attrs._name = () => tpl.tag;
-	}
-
-	var stamp =	createStamp(parentEl, tpl.tag);
-	if(level==0) ctx.rootNodes.push(stamp[1]);
-
 	var ctx0 = ctx.createChild();
+	ctx.computed(function(){
+		blockFn(stamp, tpl, ctx0);
+	});
+}
 
-	var kv = computed(function(){
-		blockFn(stamp, tpl, ctx0, level);
-	}, this);
-	kv();
-	if(kv.getDependenciesCount()>0){
-		ctx.subscribers.push(kv);
-	} else {
-		kv.dispose();
+function insertNode(parentEl, n) {
+	if(parentEl.nodeType) {
+		parentEl.appendChild(n);
+		return [parentEl, n];
+	} else{
+		parentEl[0].insertBefore(n, parentEl[1]);
+		return [parentEl[0], n];
 	}
-};
+}
 
 renderCtx.blocks = {
 };
@@ -179,8 +138,18 @@ Ctx.prototype.expr = function(f){
 	return f(this.model, this);
 }
 
+Ctx.prototype.computed = function(f){
+	var kv = computed(f, this);
+	kv();
+	if(kv.getDependenciesCount()>0){
+		this.subscribers.push(kv);
+	} else {
+		kv.dispose();
+	}
+}
+
 export {
-	renderCtx, renderElement, renderBlock,
+	renderCtx, bindAttr, bindText, bindBlock,
 	Ctx,
-	insertNode, createStamp
+	insertNode
 };

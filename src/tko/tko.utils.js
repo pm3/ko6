@@ -240,10 +240,6 @@ var options = {
   }
 };
 
-Object.defineProperty(options, '$', {
-  get: function () { return options.jQuery }
-});
-
 //
 // Error handling
 // ---

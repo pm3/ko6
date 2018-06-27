@@ -3,25 +3,36 @@ import { computed }  from '../tko/tko.computed.js';
 import { renderCtx }  from '../renderCtx.js';
 import { templateParser }  from '../templateParser.js';
 
-export function blockComponent(stamp, tpl, ctx0, level){
+export function blockComponent(stamp, tpl, ctx0){
 
-	if(tpl.children && tpl.children.length>0 && tpl.attrs && tpl.attrs['_name']){
+	var name = null;
+	if(tpl.attrs && tpl.attrs['$name'] && tpl.attrs['$name'].call){
+		name = ctx0.expr(tpl.attrs['$name']);
+		name = unwrap(name);
+	}
+
+	let params = null;
+	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
+		params = ctx0.expr(tpl.attrs['$params']);
+		params = unwrap(params);
+	}
+	
+	if(!name && params && params.name){
+		name = unwrap(params.name);
+	}
+
+	if(name) {
 		
-		var _name = tpl.attrs['_name'];
-		var val2 = unwrap(ctx0.expr(_name));
-
-		if(val2==ctx0.cname) return;
-		ctx0.cname = val2;
+		if(name==ctx0.cname) return;
+		ctx0.cname = name;
 
 		ctx0.dispose();
 
 		dependencyDetection.ignore(function(){
 
 			const callback = function(modelFn, view) {
-				let model = {};
-				for (let name in tpl.attrs) if (tpl.attrs.hasOwnProperty(name)) model[name] = ctx0.expr(tpl.attrs[name]);
 				if(modelFn){
-					model = new modelFn(model);
+					model = new modelFn(params);
 				}
 				ctx0.model = model;
 				ctx0.compoent = model;
@@ -29,7 +40,7 @@ export function blockComponent(stamp, tpl, ctx0, level){
 				renderCtx(stamp, view, ctx0, 0);
 			};
 
-			renderCtx.registerComponent(val2, null, callback);
+			renderCtx.registerComponent(name, null, callback);
 
 		});
 
