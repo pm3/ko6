@@ -53,10 +53,12 @@ function walknodes(nodes, arr){
 				}
 			} 
 			if(blockParams) {
-				if(el.params){
-					console.warn('ignore block attributes, exist attribude $params '+el.block+'['+el.params+']');
-				} else {
 
+				if(el.params){
+					//exits el, params, ignore attributes
+					if(blockParams.length>1)
+						console.warn('ignore block attributes, exist attribude $params '+el.block+'['+el.params+']');
+				} else {
 					blockParams.push('}');
 					el.params = blockParams.join('');
 				}

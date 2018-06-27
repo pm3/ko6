@@ -39,26 +39,26 @@
 	<!-- component block -->
 	<div>
 		<p>ko-component custom el with attributes </p>
-		<ko-component $name='component-name' a="3" b={m.name}>
+		<ko-component $name='component-name' a="1" b={m.name}>
 			<p>Hello</p>
 		</ko-component>
 	</div>
 	<div>
 		<p>ko-component custom el with $params attribut </p>
-		<ko-component $name='component-name' $params='{a:"3", b:m.name}'>
+		<ko-component $name="component-name" $params="{a:'2', b:m.name}">
 			<p>Hello</p>
 		</ko-component>
 	</div>
 	<div>
 		<p>ko-component custom el with $params attribut with $name </p>
-		<ko-component $params='{$name:m.componentName, a:"3"}'>
+		<ko-component $params="{$name:m.componentName, a:'3', b:m.name}">
 			<p>Hello</p>
 		</ko-component>
 	</div>
 
 	<div>
 		<p>ko-component virtual el </p>
-		<!-- ko-component $name:m.componentName, a:'3' -->
+		<!-- ko-component $name:m.componentName, a:'4', b:m.name -->
 			<p>Hello</p>
 		<!-- /ko-component -->
 	</div>
@@ -66,13 +66,13 @@
 	<!-- component custom el -->
 	<div>
 		<p>component named custom el with attributes </p>
-		<component-name a=3 b={m.name}>
+		<component-name a=5 b={m.name}>
 			<p>Hello</p>
 		</component-name>
 	</div>
 	<div>
 		<p>component named custom el with $params attribute </p>
-		<component-name $params='{a:"3", b:m.name}'>
+		<component-name $params="{a:'6', b:m.name}">
 			<p>Hello</p>
 		</component-name>
 	</div>
@@ -80,7 +80,7 @@
 	<!-- component virtual el -->
 	<div>
 		<p>component named virtual el </p>
-		<!-- ko:component-name a:"3", b:m.name -->
+		<!-- ko:component-name a:'7', b:m.name -->
 			<p>Hello</p>
 		<!-- /ko:component-name -->
 	</div>

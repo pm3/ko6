@@ -5,7 +5,6 @@ import { templateParser }  from '../templateParser.js';
 
 export function blockComponent(stamp, tpl, ctx0){
 
-	console.log('render component ', tpl);
 	var name = null;
 	if(tpl.name && tpl.name.call){
 		name = ctx0.expr(tpl.name);
@@ -22,7 +21,6 @@ export function blockComponent(stamp, tpl, ctx0){
 	}
 	
 	if(!name && params && params.$name){
-		if(params.$name) console.log('execute component name ', params.$name);
 		let name2 = unwrap(params.$name);
 		if(typeof name2 == 'string'){
 			name = name2;
@@ -39,12 +37,12 @@ export function blockComponent(stamp, tpl, ctx0){
 		dependencyDetection.ignore(function(){
 
 			const callback = function(modelFn, view) {
-				let model = modelFn ? new modelFn(params) : params;
-				ctx0.model = model;
-				ctx0.component = model;
+				const model = modelFn ? new modelFn(params) : params;
+				const ctx2 = ctx0.createChild(model);
+				ctx2.component = model;
 				if(model.dispose && model.dispose.call)
-					ctx0.subscribers.push(model);
-				renderCtx(stamp, view, ctx0, 0);
+					ctx2.subscribers.push(model);
+				renderCtx(stamp, view, ctx2, 0);
 			};
 
 			renderCtx.registerComponent(name, null, callback);
