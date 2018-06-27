@@ -10,35 +10,36 @@ function renderCtx(parentEl, tpl, ctx, level){
 			renderCtx(parentEl, tpl[i], ctx, level);
 		}
 	} else if(tpl.tag){
-		if(tpl.tag.indexOf('-')>=0){
-	   		//is block
-	   		const stamp = insertNode(parentEl, document.createComment(tpl.tag));
-	   		bindBlock(stamp, tpl, ctx);
-		} else {
-			//is html element
-			const el = document.createElement(tpl.tag);
-			for (let key in tpl.attrs) {
-				const val = tpl.attrs[key];
-				if(val.call){
-					bindAttr(el, key, val, ctx);
-				} else {
-					el.setAttribute(key, val);
-				}
-			}
-			if(level==0) ctx.rootNodes.push(el);
-			insertNode(parentEl, el);
-			if(tpl.children) {
-				for(let i=0, max=tpl.children.length; i<max; i++){
-					renderCtx(el, tpl.children[i], ctx, level+1)
-				}
+		//is html element
+		const el = document.createElement(tpl.tag);
+		for (let key in tpl.attrs){
+			el.setAttribute(key, tpl.attrs[key]);
+		}
+		if(level==0) ctx.rootNodes.push(el);
+		insertNode(parentEl, el);
+		//apply bindings
+		if(tpl.bindings){
+			for (let key in tpl.bindings) {
+				bindAttr(el, key, convertExpression(tpl.bindings, key), ctx);
 			}
 		}
-	} else if(tpl && tpl.call){
+		// add children nodes
+		if(tpl.children) {
+			for(let i=0, max=tpl.children.length; i<max; i++){
+				renderCtx(el, tpl.children[i], ctx, level+1)
+			}
+		}
+	} else if(tpl.block && tpl.block=='ko-text'){
 		//is text expresssion
 		const n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
-		bindText(n, tpl, ctx);
+		bindText(n, convertExpression(tpl, 'params'), ctx);
+	} else if(tpl.block){
+   		//is block
+   		const stamp = insertNode(parentEl, document.createComment(tpl.block));
+   		convertExpression(tpl, 'params');
+   		bindBlock(stamp, tpl, ctx);
 	} else if(tpl !== undefined || tpl !== null){
 		//is static text
 		const n = document.createTextNode(""+tpl);
@@ -76,6 +77,14 @@ function bindAttr(el, key, val, ctx){
 	}
 }
 
+function convertExpression(obj, key){
+	let val = obj[key];
+	if(val.call) return val;
+	val = new Function('m', 'ctx', 'return '+val);
+	obj[key] = val;
+	return val;
+}
+
 function bindText(node, val, ctx) {
 	ctx.computed(function(){
 		let val2 = ctx.expr(val);
@@ -86,7 +95,7 @@ function bindText(node, val, ctx) {
 }
 
 function bindBlock(stamp, tpl, ctx) {
-	const blockFn = renderCtx.blocks[tpl.tag];
+	const blockFn = renderCtx.blocks[tpl.block];
 	const ctx0 = ctx.createChild();
 	ctx.computed(function(){
 		blockFn(stamp, tpl, ctx0);
@@ -150,6 +159,5 @@ Ctx.prototype.computed = function(f){
 
 export {
 	renderCtx, bindAttr, bindText, bindBlock,
-	Ctx,
-	insertNode
+	Ctx
 };

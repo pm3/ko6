@@ -3,8 +3,8 @@ import { unwrap }  from '../tko/tko.observable.js';
 export default function blockHtml(stamp, tpl, ctx0){
 
 	let value = null;
-	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
-		value = ctx0.expr(tpl.attrs['$params']);
+	if(tpl.params && tpl.params.call){
+		value = ctx0.expr(tpl.params);
 		value = unwrap(value);
 		
 		//remove old

@@ -6,19 +6,25 @@ import { templateParser }  from '../templateParser.js';
 export function blockComponent(stamp, tpl, ctx0){
 
 	var name = null;
-	if(tpl.attrs && tpl.attrs['$name'] && tpl.attrs['$name'].call){
-		name = ctx0.expr(tpl.attrs['$name']);
+	if(tpl.name && tpl.name.call){
+		name = ctx0.expr(tpl.name);
 		name = unwrap(name);
+	}
+	if(!name && typeof tpl.name == 'string'){
+		name = tpl.name;
 	}
 
 	let params = null;
-	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
-		params = ctx0.expr(tpl.attrs['$params']);
+	if(tpl.params && tpl.params.call){
+		params = ctx0.expr(tpl.params);
 		params = unwrap(params);
 	}
 	
 	if(!name && params && params.name){
-		name = unwrap(params.name);
+		let name2 = unwrap(params.name);
+		if(typeof name2 == 'string'){
+			name = name2;
+		}
 	}
 
 	if(name) {

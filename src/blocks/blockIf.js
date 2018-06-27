@@ -4,8 +4,8 @@ import { renderCtx }  from '../renderCtx.js';
 export default function blockIf(stamp, tpl, ctx0){
 
 	let value = null;
-	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
-		value = ctx0.expr(tpl.attrs['$params']);
+	if(tpl.params && tpl.params.call){
+		value = ctx0.expr(tpl.params);
 		value = unwrap(value) ? true : false;
 
 		//check boolean expression change true/false

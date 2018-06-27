@@ -10,14 +10,16 @@ export default function blockForeach(stamp, tpl, ctx0){
 	}
 
 	let value = null;
-	if(tpl.attrs && tpl.attrs['$params'] && tpl.attrs['$params'].call){
-		value = ctx0.expr(tpl.attrs['$params']);
+	if(tpl.params && tpl.params.call){
+		value = ctx0.expr(tpl.params);
 		value = unwrap(value);
 		let items = [];
 		if(Array.isArray(value)){
 			items = value;
-		} else if(Array.isArray(value.items)){
-			items = value.items;
+		} else if(value.items){
+			let items2 = unwrap(value.items);
+			if(Array.isArray(items2))
+				items = items2;
 		}
 		dependencyDetection.ignore(function(){
 			renderItems(items, stamp, tpl, ctx0);

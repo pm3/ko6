@@ -17,6 +17,10 @@ renderCtx.blocks['ko-if'] = blockIf;
 renderCtx.blocks['ko-html'] = blockHtml;
 renderCtx.blocks['ko-template'] = blockTemplate;
 
+function blockText() { throw 'not implemented as block' };
+blockText.virtualClosingTag = true;
+renderCtx.blocks['ko-text'] = blockText;
+
 templateParser.blockConfig = renderCtx.blocks;
 
 renderCtx.bindingHandlers['click'] = clickHandler;
