@@ -25,7 +25,7 @@ var stopMeasure = function () {
 		console.log(lastMeasure + " took " + (stop - startTime));
 		var countXtx = getCount(window.rootCtx);
 		if(window.mainModel) window.mainModel.log(lastMeasure + " took " + (stop - startTime).toFixed(0)+"ms, ctx "+countXtx);
-		if(window.gc) window.gc();
+		//if(window.gc) window.gc();
 	}, 0);
 };
 

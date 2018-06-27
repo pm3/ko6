@@ -1,7 +1,7 @@
 <div>
-    <If value={m.step()<4}>
+    <ko-if value={m.step()<4}>
        	<div><span>step </span>{m.step}</div>
-       	<Template value={m.tpl1} />
-		<Html value={'steppp '+m.step()} />
-    </If>
+       	<ko-template value={m.tpl1} />
+		<ko-html value={'steppp '+m.step()} />
+    </ko-if>
 </div>

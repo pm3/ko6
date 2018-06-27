@@ -48,26 +48,27 @@ function renderCtx(parentEl, tpl, ctx, level){
 }
 
 function bindAttr(el, key, val, ctx){
-	var binding = renderCtx.bindingHandlers[key];
+	const binding = renderCtx.bindingHandlers[key];
 	if(binding){
+		//binding definition
 		if(binding.init){
-			var val2 = ctx.expr(val);
+			const val2 = ctx.expr(val);
 			binding.init(el, val2, ctx);
 		}
 		if(binding.update){
 			ctx.computed(function(){
-				var val2 = ctx.expr(val);
+				const val2 = ctx.expr(val);
 				binding.update(el, val2, ctx);
 				return val2;
 			});
 		}
 		if(binding.dispose && binding.dispose.call){
-			var disposer = { dispose: function(){ binding.dispose(el, ctx); }};
+			const disposer = { dispose: function(){ binding.dispose(el, ctx); }};
 			ctx.subscribers.push(disposer);
 		}
 	} else {
 		ctx.computed(function(){
-			var val2 = ctx.expr(val);
+			let val2 = ctx.expr(val);
 			val2 = unwrap(val2);
 			el.setAttribute(key, val2);
 			return val2;
@@ -77,7 +78,7 @@ function bindAttr(el, key, val, ctx){
 
 function bindText(node, val, ctx) {
 	ctx.computed(function(){
-		var val2 = ctx.expr(val);
+		let val2 = ctx.expr(val);
 		val2 = unwrap(val2);
 		node.nodeValue = ""+val2;
 		return val2;
@@ -85,9 +86,8 @@ function bindText(node, val, ctx) {
 }
 
 function bindBlock(stamp, tpl, ctx) {
-	console.log('bindBlock-stamp', stamp, tpl);
-	var blockFn = renderCtx.blocks[tpl.tag];
-	var ctx0 = ctx.createChild();
+	const blockFn = renderCtx.blocks[tpl.tag];
+	const ctx0 = ctx.createChild();
 	ctx.computed(function(){
 		blockFn(stamp, tpl, ctx0);
 	});
@@ -139,7 +139,7 @@ Ctx.prototype.expr = function(f){
 }
 
 Ctx.prototype.computed = function(f){
-	var kv = computed(f, this);
+	const kv = computed(f, this);
 	kv();
 	if(kv.getDependenciesCount()>0){
 		this.subscribers.push(kv);
