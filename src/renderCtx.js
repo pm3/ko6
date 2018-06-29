@@ -20,7 +20,7 @@ function renderCtx(parentEl, tpl, ctx, level){
 		//apply bindings
 		if(tpl.bindings){
 			for (let key in tpl.bindings) {
-				bindAttr(el, key, convertExpression(tpl.bindings, key), ctx);
+				bindAttr(el, key, tpl.bindings[key], ctx);
 			}
 		}
 		// add children nodes
@@ -34,11 +34,10 @@ function renderCtx(parentEl, tpl, ctx, level){
 		const n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
 		insertNode(parentEl, n);
-		bindText(n, convertExpression(tpl, 'params'), ctx);
+		bindText(n, tpl.params, ctx);
 	} else if(tpl.block){
    		//is block
    		const stamp = insertNode(parentEl, document.createComment(tpl.block));
-   		convertExpression(tpl, 'params');
    		bindBlock(stamp, tpl, ctx);
 	} else if(tpl !== undefined || tpl !== null){
 		//is static text
@@ -75,14 +74,6 @@ function bindAttr(el, key, val, ctx){
 			return val2;
 		});
 	}
-}
-
-function convertExpression(obj, key){
-	let val = obj[key];
-	if(val.call) return val;
-	val = new Function('m', 'ctx', 'return '+val);
-	obj[key] = val;
-	return val;
 }
 
 function bindText(node, val, ctx) {

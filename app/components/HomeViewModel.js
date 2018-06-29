@@ -8,7 +8,7 @@ function getCount(parent){
     var relevantChildren = 1;
     if(parent.subscribers){
     	for(let i=0, max = parent.subscribers.length; i < max; i++) 
-    		relevantChildren += getCount(parent.subscribers[i]);
+    		if(parent.subscribers[i].createChild) relevantChildren += getCount(parent.subscribers[i]);
 	}
     return relevantChildren;
 }
