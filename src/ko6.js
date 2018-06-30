@@ -55,6 +55,6 @@ export {
 	observable,	observableArray, unwrap,
 	computed, pureComputed, isPureComputed,
 	registerComponent, componentLoaders,
-	renderCtx, bindAttr, bindText, bindBlock,
+	renderCtx, bindAttr, bindText, bindBlock, Ctx,
 	ko2json
 };

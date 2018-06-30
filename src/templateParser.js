@@ -83,7 +83,7 @@ function walknodes(nodes, arr, options){
 		   	
 		   	//convert attributes to block elements
 		   	let parentArray = arr;
-			for (let a of subBlockAttrs){
+			for (let a of subBlockAttrs.reverse()){
 				const conf = lblockConfig[a.name];
 				if(conf.wrapElementWithBlockAttr){
 
