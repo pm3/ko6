@@ -68,8 +68,7 @@ function bindAttr(el, key, val, ctx){
 		}
 	} else {
 		ctx.computed(function(){
-			let val2 = ctx.expr(val);
-			val2 = unwrap(val2);
+			const val2 = ctx.expr(val, true);
 			el.setAttribute(key, val2);
 			return val2;
 		});
@@ -78,8 +77,7 @@ function bindAttr(el, key, val, ctx){
 
 function bindText(node, val, ctx) {
 	ctx.computed(function(){
-		let val2 = ctx.expr(val);
-		val2 = unwrap(val2);
+		const val2 = ctx.expr(val, true);
 		node.nodeValue = ""+val2;
 		return val2;
 	});
@@ -87,10 +85,7 @@ function bindText(node, val, ctx) {
 
 function bindBlock(stamp, tpl, ctx) {
 	const blockFn = renderCtx.blocks[tpl.block];
-	const ctx0 = ctx.createChild();
-	ctx.computed(function(){
-		blockFn(stamp, tpl, ctx0);
-	});
+	blockFn(stamp, tpl, ctx);
 }
 
 function insertNode(parentEl, n) {
@@ -134,8 +129,9 @@ Ctx.prototype.createChild = function(model){
 	this.subscribers.push(ctx0);
 	return ctx0;
 }
-Ctx.prototype.expr = function(f){
-	return f(this.model, this);
+Ctx.prototype.expr = function(f, u){
+	let v = f(this.model, this);
+	return u ? unwrap(v) : v; 
 }
 
 Ctx.prototype.computed = function(f){

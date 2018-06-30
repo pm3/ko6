@@ -1,26 +1,36 @@
-import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
+import { dependencyDetection }  from '../tko/tko.observable.js';
 import { renderCtx }  from '../renderCtx.js';
 
-export default function blockIf(stamp, tpl, ctx0){
+export default function blockIf(stamp, tpl, ctx){
 
-	let value = null;
+	if(!(tpl && tpl.children && tpl.children.length>0)){
+		console.warn("empty if" ,tpl);
+		return;
+	}
+
 	if(tpl.params && tpl.params.call){
-		value = ctx0.expr(tpl.params);
-		value = unwrap(value) ? true : false;
 
-		//check boolean expression change true/false
-		if(value===ctx0.lastVal) return;
-		ctx0.lastVal = value;
+		let ctx0 = ctx.createChild();
+		ctx0.lastVal = false;
+		ctx.computed(function(){
 
-		dependencyDetection.ignore(function(){
-	
-			//remove old children tpl
-			ctx0.dispose();
-	
-			if(val2){
-				//render new children tpl
-				renderCtx(stamp, tpl.children, ctx0, 0);
-			}
+			const value = ctx.expr(tpl.params, true) ? true : false;
+
+			//check boolean expression change true/false
+			if(value===ctx0.lastVal) return;
+			ctx0.lastVal = value;
+
+			dependencyDetection.ignore(function(){
+		
+				//remove old children tpl
+				ctx0.dispose();
+		
+				if(value){
+					//render new children tpl
+					renderCtx(stamp, tpl.children, ctx0, 0);
+				}
+			});
+			return value;
 		});
 	}
 

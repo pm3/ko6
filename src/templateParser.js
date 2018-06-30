@@ -1,22 +1,22 @@
 
-export function templateParser(str, disableExprFn) {
+export function templateParser(str, options) {
 	const startTime = performance.now();
 
 	const div = document.createElement('div');
 	div.innerHTML = ""+str;
 	const arr = [];
-	walknodes(div.childNodes, arr, disableExprFn);
+	walknodes(div.childNodes, arr, options);
 	const finishTime = performance.now();
   	console.log('templateParser', (finishTime-startTime));
-  	if(!disableExprFn){
+  	if(!options){
 		const arr2 = [];
-		walknodes(div.childNodes, arr2, true);
+		walknodes(div.childNodes, arr2, {exprCreator:function(s){ return s}});
 		console.log(JSON.stringify(arr2));
   	}
 	return arr;
 }
 
-function walknodes(nodes, arr, disableExprFn){
+function walknodes(nodes, arr, options){
 	const lblockConfig = templateParser.blockConfig;
 	for(let i=0, max=nodes.length; i<max; i++){
 		const n = nodes[i];
@@ -41,7 +41,7 @@ function walknodes(nodes, arr, disableExprFn){
 					    continue;
 					}
 					if(a.name=='$params'){
-						el.params = parseJsExression(a.value, disableExprFn);
+						el.params = parseJsExression(a.value, options);
 					    continue;
 					}
 					if(blockParams.length>1) blockParams.push(', ');
@@ -53,7 +53,7 @@ function walknodes(nodes, arr, disableExprFn){
 				    }
 				} else if(/^\{.*\}$/.test(a.value)){
 					if(!el.bindings) el.bindings ={};
-					el.bindings[a.name] = parseJsExression(a.value, disableExprFn);
+					el.bindings[a.name] = parseJsExression(a.value, options);
 				} else {
 					el.attrs[a.name] = a.value;
 				}
@@ -66,18 +66,19 @@ function walknodes(nodes, arr, disableExprFn){
 						console.warn('ignore block attributes, exist attribude $params '+el.block+'['+el.params+']');
 				} else {
 					blockParams.push('}}');
-					el.params = parseJsExression(blockParams.join(''), disableExprFn);
+					el.params = parseJsExression(blockParams.join(''), options);
 				}
 				if(lblockConfig && !lblockConfig[el.block]){
 					if(el.name){
 						console.warn('ignore component attribute $name, use ellement name '+el.block+'['+el.params+']');
+					} else {
+						el.name = el.block;
 					}
-					el.name = el.block;
 					el.block = 'ko-component';
 				}
 			}
 			el.children = [];
-			walknodes(n.childNodes, el.children, disableExprFn);
+			walknodes(n.childNodes, el.children, options);
 		   	if(el.children.length==0) delete el.children;
 		   	
 		   	//convert attributes to block elements
@@ -87,13 +88,13 @@ function walknodes(nodes, arr, disableExprFn){
 				if(conf.wrapElementWithBlockAttr){
 
 					//wrap el to block
-			   		const el2 = { block:a.name, params:parseJsExression(a.value, disableExprFn), children:[] };
+			   		const el2 = { block:a.name, params:parseJsExression(a.value, options), children:[] };
 			   		parentArray.push(el2);
 			   		parentArray = el2.children;
 				} else {
 
 					//replace children to block
-			   		const el2 = { block:a.name, params:parseJsExression(a.value, disableExprFn), children:el.children };
+			   		const el2 = { block:a.name, params:parseJsExression(a.value, options), children:el.children };
 				   	if(el2.children && el2.children.length==0) delete el2.children;
 				   	if(el2.children && conf.virtualClosingTag) delete el2.children;
 			   		el.children = [ el2 ];
@@ -114,14 +115,14 @@ function walknodes(nodes, arr, disableExprFn){
 				const conf = lblockConfig[vname];
 				if(conf.virtualClosingTag){
 					//closingTag, no paired with end tag
-					const el2 = { block:vname, params:parseJsExression('{'+vparams+'}', disableExprFn) };
+					const el2 = { block:vname, params:parseJsExression('{'+vparams+'}', options) };
 					arr.push(el2);
 				} else {
 					//search close tag
 					const pos = findEndVirtualBlock(nodes, '/'+vname, i);
 					if(pos<i) throw 'unclosed virtual element '+n.nodeValue.trim();
-					const el2 = { block:vname, params:parseJsExression('{'+vparams+'}', disableExprFn), children:[] };
-					walknodes(Array.prototype.slice.call(nodes, i+1, pos), el2.children, disableExprFn);
+					const el2 = { block:vname, params:parseJsExression('{'+vparams+'}', options), children:[] };
+					walknodes(Array.prototype.slice.call(nodes, i+1, pos), el2.children, options);
 				   	if(el2.children.length==0) delete el2.children;
 					arr.push(el2);
 					i = pos;
@@ -130,8 +131,8 @@ function walknodes(nodes, arr, disableExprFn){
 			if(vname.substr(0,3)=='ko:'){
 				const pos = findEndVirtualBlock(nodes, '/'+vname, i);
 				if(pos<i) throw 'unclosed virtual element '+n.nodeValue.trim();
-				const el2 = { block:'ko-component', name:vname.substr(3), params:parseJsExression('{'+vparams+'}', disableExprFn), children:[] };
-				walknodes(Array.prototype.slice.call(nodes, i+1, pos), el2.children, disableExprFn);
+				const el2 = { block:'ko-component', name:vname.substr(3), params:parseJsExression('{'+vparams+'}', options), children:[] };
+				walknodes(Array.prototype.slice.call(nodes, i+1, pos), el2.children, options);
 			   	if(el2.children.length==0) delete el2.children;
 				arr.push(el2);
 				i = pos;
@@ -148,10 +149,11 @@ function findEndVirtualBlock(nodes, blockName, pos){
 	return -1;
 }
 
-function parseJsExression(s, disableExprFn){
+function parseJsExression(s, options){
 	if(/^\{.*\}$/.test(s)){
 		if(!(/^{\s*[a-z0-9\$]+\s*:/.test(s))) s = s.slice(1, -1);
-		return disableExprFn ? s : new Function('m', 'ctx', 'return '+s);
+		if(options && options.exprCreator) return options.exprCreator(s);
+		return new Function('m', 'ctx', 'return '+s);
 	} 
 	throw 'parse expression error, no wraped expression to {} '+s;
 }

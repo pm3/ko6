@@ -3,54 +3,58 @@ import { computed }  from '../tko/tko.computed.js';
 import { renderCtx }  from '../renderCtx.js';
 import { templateParser }  from '../templateParser.js';
 
-export function blockComponent(stamp, tpl, ctx0){
+export function blockComponent(stamp, tpl, ctx){
 
-	var name = null;
-	if(tpl.name && tpl.name.call){
-		name = ctx0.expr(tpl.name);
-		name = unwrap(name);
-	}
-	if(!name && typeof tpl.name == 'string'){
-		name = tpl.name;
-	}
+	let ctx0 = ctx.createChild();
+	ctx.computed(function(){
 
-	let params = null;
-	if(tpl.params && tpl.params.call){
-		params = ctx0.expr(tpl.params);
-		params = unwrap(params);
-	}
-	
-	if(!name && params && params.$name){
-		let name2 = unwrap(params.$name);
-		if(typeof name2 == 'string'){
-			name = name2;
+		let name = null;
+		if(typeof tpl.name == 'string'){
+			name = tpl.name;
 		}
-	}
+		if(!name && tpl.name && tpl.name.call){
+			name = ctx.expr(tpl.name, true);
+		}
 
-	if(name) {
+		let params = null;
+		if(tpl.params && tpl.params.call){
+			params = ctx.expr(tpl.params, true);
+		}
 		
-		if(name==ctx0.cname) return;
-		ctx0.cname = name;
+		if(!name && params && params.$name){
+			let name2 = unwrap(params.$name);
+			if(typeof name2 == 'string'){
+				name = name2;
+			}
+		}
 
-		ctx0.dispose();
+		if(name) {
+			
+			if(name===ctx0.cname) return;
+			ctx0.cname = name;
 
-		dependencyDetection.ignore(function(){
+			ctx0.dispose();
+			ctx0.model = null;
+			ctx0.component = null;
 
-			const callback = function(modelFn, view) {
-				const model = modelFn ? new modelFn(params) : params;
-				const ctx2 = ctx0.createChild(model);
-				ctx2.component = model;
-				if(model.dispose && model.dispose.call)
-					ctx2.subscribers.push(model);
-				renderCtx(stamp, view, ctx2, 0);
-			};
+			dependencyDetection.ignore(function(){
 
-			renderCtx.registerComponent(name, null, callback);
+				const callback = function(modelFn, view) {
+					const model = modelFn ? new modelFn(params) : params;
+					ctx0.model = model;
+					ctx0.component = model;
+					if(model.dispose && model.dispose.call)
+						ctx0.subscribers.push(model);
+					renderCtx(stamp, view, ctx0, 0);
+				};
 
-		});
+				renderCtx.registerComponent(name, null, callback);
 
-	}
-	return name;
+			});
+
+		}
+
+	});
 }
 
 export var componentLoaders = [];

@@ -2,27 +2,31 @@ import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
 import { computed }  from '../tko/tko.computed.js';
 import { renderCtx }  from '../renderCtx.js';
 
-export default function blockForeach(stamp, tpl, ctx0){
+export default function blockForeach(stamp, tpl, ctx){
 
 	if(!(tpl && tpl.children && tpl.children.length>0)){
-		console.log("empty foreach" ,tpl);
+		console.warn("empty foreach" ,tpl);
 		return;
 	}
 
-	let value = null;
 	if(tpl.params && tpl.params.call){
-		value = ctx0.expr(tpl.params);
-		value = unwrap(value);
-		let items = [];
-		if(Array.isArray(value)){
-			items = value;
-		} else if(value.items){
-			let items2 = unwrap(value.items);
-			if(Array.isArray(items2))
-				items = items2;
-		}
-		dependencyDetection.ignore(function(){
-			renderItems(items, stamp, tpl, ctx0);
+
+		let ctx0 = ctx.createChild();
+		ctx.computed(function(){
+
+			const value = ctx.expr(tpl.params, true);
+			let items = [];
+			if(Array.isArray(value)){
+				items = value;
+			} else if(value.items){
+				let items2 = unwrap(value.items);
+				if(Array.isArray(items2))
+					items = items2;
+			}
+			dependencyDetection.ignore(function(){
+				renderItems(items, stamp, tpl, ctx0);
+			});
+			return value;
 		});
 	}
 };
