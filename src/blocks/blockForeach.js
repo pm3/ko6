@@ -1,5 +1,4 @@
-import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
-import { computed }  from '../tko/tko.computed.js';
+import { unwrap, ignoreDependencies, computed }  from '../ko3/ko.js';
 import { renderCtx }  from '../renderCtx.js';
 
 export default function blockForeach(stamp, tpl, ctx){
@@ -23,7 +22,7 @@ export default function blockForeach(stamp, tpl, ctx){
 				if(Array.isArray(items2))
 					items = items2;
 			}
-			dependencyDetection.ignore(function(){
+			ignoreDependencies(function(){
 				renderItems(items, stamp, tpl, ctx0);
 			});
 			return value;

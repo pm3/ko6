@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build-dev": "webpack -w -d ",
-    "build-prod": "webpack -p "
+    "build-prod": "webpack -p ",
+    "create-ko3": "node create-ko3.js"
   },
   "repository": {
     "type": "git",

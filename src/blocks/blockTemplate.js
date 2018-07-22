@@ -1,4 +1,4 @@
-import { dependencyDetection }  from '../tko/tko.observable.js';
+import { ignoreDependencies }  from '../ko3/ko.js';
 import { renderCtx }  from '../renderCtx.js';
 
 export default function blockTemplate(stamp, tpl, ctx){
@@ -11,7 +11,7 @@ export default function blockTemplate(stamp, tpl, ctx){
 
 			const value = ctx.expr(tpl.params, true);
 
-			dependencyDetection.ignore(function(){
+			ignoreDependencies(function(){
 
 				//remove old template
 				ctx0.dispose();

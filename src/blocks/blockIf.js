@@ -1,4 +1,4 @@
-import { dependencyDetection }  from '../tko/tko.observable.js';
+import { ignoreDependencies }  from '../ko3/ko.js';
 import { renderCtx }  from '../renderCtx.js';
 
 export default function blockIf(stamp, tpl, ctx){
@@ -20,7 +20,7 @@ export default function blockIf(stamp, tpl, ctx){
 			if(value===ctx0.lastVal) return;
 			ctx0.lastVal = value;
 
-			dependencyDetection.ignore(function(){
+			ignoreDependencies(function(){
 		
 				//remove old children tpl
 				ctx0.dispose();

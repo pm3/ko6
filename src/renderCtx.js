@@ -1,7 +1,4 @@
-import { unwrap }  from './tko/tko.observable.js';
-import { computed }  from './tko/tko.computed.js';
-
-import { blockComponent }   from './blocks/blockComponent.js';
+import { unwrap, computed }  from './ko3/ko.js';
 
 function renderCtx(parentEl, tpl, ctx, level){
 	if(Array.isArray(tpl)){

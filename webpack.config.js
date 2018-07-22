@@ -6,8 +6,7 @@ var CommonsChunkPlugin = require("./node_modules/webpack/lib/optimize/CommonsChu
 module.exports = {
   entry: {
   	'main': './app/main.js',
-  	'HomeViewModel': './app/components/HomeViewModel.js',
-  	'TestBlocksModel': './app/components/TestBlocksModel.js'
+  	'HomeViewModel': './app/components/HomeViewModel.js'
   },
   output: {
 	path: path.join(__dirname, "dist"),

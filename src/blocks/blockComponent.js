@@ -1,5 +1,4 @@
-import { unwrap, dependencyDetection }  from '../tko/tko.observable.js';
-import { computed }  from '../tko/tko.computed.js';
+import { unwrap, ignoreDependencies, computed }  from '../ko3/ko.js';
 import { renderCtx }  from '../renderCtx.js';
 import { templateParser }  from '../templateParser.js';
 
@@ -37,7 +36,7 @@ export function blockComponent(stamp, tpl, ctx){
 			ctx0.model = null;
 			ctx0.component = null;
 
-			dependencyDetection.ignore(function(){
+			ignoreDependencies(function(){
 
 				const callback = function(modelFn, view) {
 					const model = modelFn ? new modelFn(params) : params;

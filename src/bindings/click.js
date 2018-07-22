@@ -1,4 +1,4 @@
-import { unwrap } from '../tko/tko.observable.js';
+import { unwrap } from '../ko3/ko.js';
 
 export default {
 	init: function(el, val){

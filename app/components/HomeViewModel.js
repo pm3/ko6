@@ -1,4 +1,3 @@
-import { arrayPushAll }  from '../../src/tko/tko.utils.js';
 import * as ko6 from '../../src/ko6.js';
 
 var startTime;
@@ -76,7 +75,7 @@ export function HomeViewModel () {
 
 	self.add = function () {
 		startMeasure("add");
-		arrayPushAll(self.data, buildData(1000));
+		ko6.utils.arrayPushAll(self.data, buildData(1000));
 		stopMeasure();
 	};
 
