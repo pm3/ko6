@@ -31,7 +31,7 @@ describe('rendering templates', function () {
 
   it('attribute binding', function () {
 
-  	const html = `<p alt="123" id={m.id}>text</p>`;
+  	const html = `<p alt="123" $id="m.id">text</p>`;
   	const model = { id:3 };
   	const str = render2str(html, model);
     expect(str).toEqual(`<p alt="123" id="3">text</p>`);
@@ -39,25 +39,15 @@ describe('rendering templates', function () {
 
   it('attribute binding observable', function () {
 
-  	const html = `<p alt="123" id={m.id}>text</p>`;
+  	const html = `<p alt="123" $id="m.id">text</p>`;
   	const model = new Model();
   	const str = render2str(html, model);
     expect(str).toEqual(`<p alt="123" id="3">text</p>`);
   });
 
-  it('attribute binding observable 2', function () {
-
-  	const html = `<p alt="123" id={m.id}>text</p>`;
-  	const model = new Model();
-  	const parentEl = render2node(html, model);
-    expect(parentEl.innerHTML).toEqual(`<p alt="123" id="3">text</p>`);
-    model.id(4);
-    expect(parentEl.innerHTML).toEqual(`<p alt="123" id="4">text</p>`);
-  });
-
   it('text block', function () {
 
-  	const html = `<p alt="123" ko-text={m.text}></p>`;
+  	const html = `<p alt="123" $text="m.text"></p>`;
   	const model = new Model();
   	const parentEl = render2node(html, model);
     expect(parentEl.innerHTML).toEqual(`<p alt="123"></p>`);
@@ -69,35 +59,35 @@ describe('rendering templates', function () {
 
   it('html block', function () {
 
-  	const html = `<p alt="123" ko-html={m.text}></p>`;
+  	const html = `<p alt="123" $html="m.text"></p>`;
   	const model = new Model();
   	const parentEl = render2node(html, model);
-    expect(parentEl.innerHTML).toEqual(`<p alt="123"><!--ko-html--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p alt="123"><!--$html--></p>`);
     model.text('test');
-    expect(parentEl.innerHTML).toEqual(`<p alt="123">test<!--ko-html--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p alt="123">test<!--$html--></p>`);
     model.text('test <br>');
-    expect(parentEl.innerHTML).toEqual(`<p alt="123">test <br><!--ko-html--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p alt="123">test <br><!--$html--></p>`);
   });
 
   it('foreach block string', function () {
 
-  	const html = `<p ko-foreach={m.rows} ko-text={m}></p>`;
+  	const html = `<p $foreach="m.rows" $text="m"></p>`;
   	const model = new Model();
   	const parentEl = render2node(html, model);
-    expect(parentEl.innerHTML).toEqual(`<p><!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p><!--$foreach--></p>`);
     model.rows([1,2,3]);
-    expect(parentEl.innerHTML).toEqual(`<p>123<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>123<!--$foreach--></p>`);
     model.rows.push(4);
-    expect(parentEl.innerHTML).toEqual(`<p>1234<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>1234<!--$foreach--></p>`);
     model.rows.replace(3,5);
-    expect(parentEl.innerHTML).toEqual(`<p>1254<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>1254<!--$foreach--></p>`);
     model.rows.remove(2);
-    expect(parentEl.innerHTML).toEqual(`<p>145<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>145<!--$foreach--></p>`);
   });
 
   it('foreach block obj', function () {
 
-  	const html = `<p ko-foreach={m.rows} ko-text={m.value}></p>`;
+  	const html = `<p $foreach="m.rows" $text="m.value"></p>`;
   	const model = new Model();
   	function Item(v){
   		this.value = v;
@@ -105,15 +95,15 @@ describe('rendering templates', function () {
   	const parentEl = render2node(html, model);
     var arr = [];
     model.rows(arr);
-    expect(parentEl.innerHTML).toEqual(`<p><!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p><!--$foreach--></p>`);
 
     var arr = [new Item(0),new Item(1),new Item(2),new Item(3),new Item(4)];
     model.rows(arr);
-    expect(parentEl.innerHTML).toEqual(`<p>01234<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>01234<!--$foreach--></p>`);
 
     var arr = [arr[0],arr[2],arr[1],arr[3],arr[4]];
     model.rows(arr);
-    expect(parentEl.innerHTML).toEqual(`<p>02134<!--ko-foreach--></p>`);
+    expect(parentEl.innerHTML).toEqual(`<p>02134<!--$foreach--></p>`);
 
   });
 

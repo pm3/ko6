@@ -3,88 +3,54 @@
 	<!-- bindings -->
 	<div class="aa"><p>Hello static attribute</p></div>
 
-	<div class={m.className}><p>Hello binding attribute</p></div>
+	<div $class="m.className"><p>Hello binding attribute</p></div>
 
-	<div class='{m.className() ? m.className() : "base" }'><p>Hello binding attribute expression</p></div>
+	<div $class="m.className() ? m.className() : 'base'"><p>Hello binding attribute expression</p></div>
 
 	<!-- blocks text, html, if, foreach, component, template -->
 
-	<!-- binding attr to block -->
-	<div ko-foreach={items:m.rows}>
-		<p>Hello foreach block attribute <!--ko-text m --></p>
-	</div>
-
-	<!-- block custom element -->
-	<div>
-		<ko-foreach items={m.rows}>
-			<p>Hello foreach custom el <!--ko-text m --></p>
-		</ko-foreach>
+	<!-- binding attr to block --> 
+	<div $foreach="items:m.rows" > 
+		<p>Hello foreach block attribute <!--$text m --></p>
 	</div>
 
 	<!-- block virtual element -->
 	<div>
-		<!-- ko-foreach items:m.rows -->
-			<p>Hello foreach vurtual el <!--ko-text m --></p>
-		<!-- /ko-foreach -->
+		<!-- $foreach items:m.rows -->
+			<p>Hello foreach virtual el <!--$text m --></p>
+		<!-- /$foreach -->
 	</div>
 
 	<!-- inline blocks -->
-	<div><p>Hello inline text <!-- ko-text m.name --></p></div>
-	<div><p>Hello inline html <!-- ko-html m.name --></p></div>
+	<div><p>Hello inline text <!--$text m.name--> </p></div>
+	<div><p>Hello inline html <!--$html m.name--> </p></div>
 
 	<!-- attr blocks -->
-	<div><p>Hello attr text <span ko-text={m.name}></p></div>
-	<div><p>Hello attr html <span ko-html={m.name}></p></div>
+	<div><p>Hello   attr text <span $text="m.name"/> </p></div>
+	<div><p>Hello   attr html <span $html="m.name"/> </p></div>
 
 	<!-- component block -->
 	<div>
-		<p>ko-component custom el with attributes </p>
-		<ko-component $name='component-name' a="1" b={m.name}>
+		<p>component virtual el </p>
+		<div $component="name:m.componentName, params: {a:'4', b:m.name}">
 			<p>Hello</p>
-		</ko-component>
+		</div>
 	</div>
+	<!-- component virtual el -->
 	<div>
-		<p>ko-component custom el with $params attribut </p>
-		<ko-component $name="component-name" $params="{a:'2', b:m.name}">
+		<p>component named virtual el </p>
+		<!-- $component name:m.componentName, params: {a:'4', b:m.name} -->
 			<p>Hello</p>
-		</ko-component>
-	</div>
-	<div>
-		<p>ko-component custom el with $params attribut with $name </p>
-		<ko-component $params="{$name:m.componentName, a:'3', b:m.name}">
-			<p>Hello</p>
-		</ko-component>
-	</div>
-
-	<div>
-		<p>ko-component virtual el </p>
-		<!-- ko-component $name:m.componentName, a:'4', b:m.name -->
-			<p>Hello</p>
-		<!-- /ko-component -->
+		<!-- /$component -->
 	</div>
 
 	<!-- component custom el -->
 	<div>
-		<p>component named custom el with attributes </p>
-		<component-name a=5 b={m.name}>
-			<p>Hello</p>
-		</component-name>
-	</div>
-	<div>
-		<p>component named custom el with $params attribute </p>
-		<component-name $params="{a:'6', b:m.name}">
-			<p>Hello</p>
-		</component-name>
+		<p>component named custom el with params attribute </p>
+		<component-name params="a:'6', b:m.name" c=4 $d="m.aa" />
 	</div>
 
-	<!-- component virtual el -->
-	<div>
-		<p>component named virtual el </p>
-		<!-- ko:component-name a:'7', b:m.name -->
-			<p>Hello</p>
-		<!-- /ko:component-name -->
-	</div>
 
-<button type="button" class="btn btn-primary btn-block" click={m.change}>change</button>
+<button type="button" class="btn btn-primary btn-block" $click="m.change">change</button>
 
 </body>

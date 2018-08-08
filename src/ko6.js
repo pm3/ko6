@@ -11,15 +11,15 @@ import blockTemplate  from './blocks/blockTemplate.js';
 
 import clickHandler  from './bindings/click.js';
 
-renderCtx.blocks['ko-component'] = blockComponent;
-renderCtx.blocks['ko-foreach'] = blockForeach;
-renderCtx.blocks['ko-if'] = blockIf;
-renderCtx.blocks['ko-html'] = blockHtml;
-renderCtx.blocks['ko-template'] = blockTemplate;
+renderCtx.blocks['$component'] = blockComponent;
+renderCtx.blocks['$foreach'] = blockForeach;
+renderCtx.blocks['$if'] = blockIf;
+renderCtx.blocks['$html'] = blockHtml;
+renderCtx.blocks['$template'] = blockTemplate;
 
 function blockText() { throw 'not implemented as block' };
 blockText.virtualClosingTag = true;
-renderCtx.blocks['ko-text'] = blockText;
+renderCtx.blocks['$text'] = blockText;
 
 templateParser.blockConfig = renderCtx.blocks;
 

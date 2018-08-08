@@ -26,7 +26,7 @@ function renderCtx(parentEl, tpl, ctx, level){
 				renderCtx(el, tpl.children[i], ctx, level+1)
 			}
 		}
-	} else if(tpl.block && tpl.block=='ko-text'){
+	} else if(tpl.block && tpl.block=='$text'){
 		//is text expresssion
 		const n = document.createTextNode("");
 		if(level==0) ctx.rootNodes.push(n);
